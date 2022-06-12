@@ -23,7 +23,6 @@ encoding = "0.2.33"
 byteorder = "1.4.3"
 quick-xml = "^0.23"
 thiserror = "1.0.31"
-nix = "0.24.1"
 log = { version = "0.4.17", features = ["release_max_level_debug"] } 
 winstructs = "0.3.0"
 # Optional for multithreading.

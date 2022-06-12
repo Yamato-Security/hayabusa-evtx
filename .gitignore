@@ -1,0 +1,7 @@
+target
+.idea
+**/*.rs.bk
+.DS_Store
+.vs*
+.history
+.env

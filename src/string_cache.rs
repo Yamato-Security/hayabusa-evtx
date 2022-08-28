@@ -4,7 +4,7 @@ use crate::ChunkOffset;
 
 use log::trace;
 use std::borrow::BorrowMut;
-use std::collections::HashMap;
+use hashbrown::HashMap;
 use std::io::{Cursor, Seek, SeekFrom};
 
 #[derive(Debug)]

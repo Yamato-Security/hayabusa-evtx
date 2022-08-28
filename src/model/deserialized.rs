@@ -50,7 +50,7 @@ impl fmt::Display for BinXmlTemplateDefinitionHeader {
         write!(
             f,
             "<BinXmlTemplateDefinitionHeader - id: {guid}, data_size: {size}>",
-            guid = self.guid.to_string(),
+            guid = self.guid,
             size = self.data_size
         )
     }

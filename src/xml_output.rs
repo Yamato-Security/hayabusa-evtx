@@ -29,7 +29,7 @@ pub trait BinXmlOutput {
     ///
     /// Called with value on xml text node,  (ex. <Computer>DESKTOP-0QT8017</Computer>)
     ///                                                     ~~~~~~~~~~~~~~~
-    fn visit_characters(&mut self, value: &BinXmlValue) -> SerializationResult<()>;
+    fn visit_characters(&mut self, value: Cow<BinXmlValue>) -> SerializationResult<()>;
 
     /// Unimplemented
     fn visit_cdata_section(&mut self) -> SerializationResult<()>;
@@ -106,7 +106,7 @@ impl<W: Write> BinXmlOutput for XmlOutput<W> {
         Ok(())
     }
 
-    fn visit_characters(&mut self, value: &BinXmlValue) -> SerializationResult<()> {
+    fn visit_characters(&mut self, value: Cow<BinXmlValue>) -> SerializationResult<()> {
         trace!("visit_chars");
         let cow: Cow<str> = value.as_cow_str();
         let event = BytesText::from_plain_str(&cow);
@@ -122,9 +122,9 @@ impl<W: Write> BinXmlOutput for XmlOutput<W> {
     }
 
     fn visit_entity_reference(&mut self, entity: &BinXmlName) -> Result<(), SerializationError> {
-        let xml_ref = "&".to_string() + entity.as_str();
-        // This will yield stuff like `&quot`, which should be escaped.
-        let event = Event::Text(BytesText::from_plain_str(&xml_ref));
+        let xml_ref = "&".to_string() + entity.as_str() + ";";
+        // xml_ref is already escaped
+        let event = Event::Text(BytesText::from_escaped_str(&xml_ref));
         self.writer.write_event(event)?;
 
         Ok(())

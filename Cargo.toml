@@ -1,42 +1,39 @@
 [package]
 name = "evtx"
-description = "A fork of the evtx Rust crate for Hayabusa."
-homepage = "https://github.com/Yamato-Security/hayabusa-evtx"
-repository = "https://github.com/Yamato-Security/hayabusa-evtx"
-license = "MIT"
+description = "A Fast (and safe) parser for the Windows XML Event Log (EVTX) format"
+homepage = "https://github.com/omerbenamram/EVTX"
+repository = "https://github.com/omerbenamram/EVTX"
+license = "MIT/Apache-2.0"
 readme = "README.md"
 
-version = "0.7.3"
-authors = ["Omer Ben-Amram <omerbenamram@gmail.com>, Yamato Security"]
+version = "0.8.0"
+authors = ["Omer Ben-Amram <omerbenamram@gmail.com>"]
 edition = "2021"
 
-exclude = [
-    "**/*.evtx",
-    "**/*.dat",
-]
+exclude = ["**/*.evtx", "**/*.dat"]
 
 [dependencies]
 bitflags = "1.3.2"
-crc32fast = "1.3.2" 
-chrono = { version = "0.4.19", features = ["serde"] }
+crc32fast = "1.3.2"
+chrono = { version = "0.4.22", features = ["serde"] }
 encoding = "0.2.33"
 byteorder = "1.4.3"
-quick-xml = "^0.23"
-thiserror = "1.0.31"
-log = { version = "0.4.17", features = ["release_max_level_debug"] } 
+quick-xml = "0.23.0"
+thiserror = "1.0.32"
+log = { version = "0.4.17", features = ["release_max_level_debug"] }
 winstructs = "0.3.0"
 # Optional for multithreading.
-rayon = { version = "1.5.0", optional = true }
+rayon = { version = "1.5.3", optional = true }
 
 # `evtx_dump` dependencies
-anyhow = { version = "1.0", optional = true }
-simplelog = { version = "^0.10", optional = true }
-clap = { version = "2.33.3", optional = true }
-dialoguer = { version = "0.9", optional = true }
-indoc = { version = "1.0", optional = true }
+anyhow = { version = "1.0.62", optional = true }
+simplelog = { version = "0.12.0", optional = true }
+clap = { version = "3.2.17", optional = true }
+dialoguer = { version = "0.10.2", optional = true }
+indoc = { version = "1.0.7", optional = true }
 
-serde = "1.0"
-serde_json = "1.0"
+serde = "1.0.144"
+serde_json = "1.0.85"
 
 [target.'cfg(not(windows))'.dependencies]
 # jemalloc is significantly more peformant than the system allocator.
@@ -54,9 +51,10 @@ evtx_dump = ["simplelog", "clap", "dialoguer", "indoc", "anyhow"]
 multithreading = ["rayon"]
 
 [dev-dependencies]
+insta = { version = "1.19.0", features = ["json"] }
 pretty_assertions = "1.2.1"
-criterion = "0.3.5"
-assert_cmd = "^2.0"
+criterion = "0.3.6"
+assert_cmd = "2.0.4"
 predicates = "2.1.1"
 env_logger = "0.9.0"
 tempfile = "3.3.0"
@@ -64,7 +62,7 @@ tempfile = "3.3.0"
 [profile.release]
 opt-level = 3
 codegen-units = 1
-lto = "fat"
+lto = "thin"
 
 # rexpect relies on unix process semantics, but it's only used for process interaction tests.
 [target.'cfg(not(target_os = "windows"))'.dev-dependencies]
@@ -81,3 +79,27 @@ required-features = ["evtx_dump"]
 name = "benchmark"
 path = "./src/benches/benchmark.rs"
 harness = false
+
+[package.metadata.raze]
+# The path at which to write output files.
+#
+# `cargo raze` will generate Bazel-compatible BUILD files into this path.
+# This can either be a relative path (e.g. "foo/bar"), relative to this
+# Cargo.toml file; or relative to the Bazel workspace root (e.g. "//foo/bar").
+workspace_path = "//cargo"
+
+# This causes aliases for dependencies to be rendered in the BUILD
+# file located next to this `Cargo.toml` file.
+package_aliases_dir = "."
+
+# The set of targets to generate BUILD rules for.
+targets = [
+    "x86_64-apple-darwin",
+    "x86_64-pc-windows-msvc",
+    "x86_64-unknown-linux-gnu",
+]
+
+# The two acceptable options are "Remote" and "Vendored" which
+# is used to indicate whether the user is using a non-vendored or
+# vendored set of dependencies.
+genmode = "Remote"

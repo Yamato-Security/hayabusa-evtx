@@ -5,3 +5,7 @@ target
 .vs*
 .history
 .env
+.pdf
+.txt
+.etl
+.json

@@ -22,6 +22,7 @@ quick-xml = "0.23"
 thiserror = "1.0"
 log = { version = "0.4", features = ["release_max_level_debug"] }
 winstructs = "0.3"
+hashbrown = "*"
 # Optional for multithreading.
 rayon = { version = "1.5", optional = true }
 

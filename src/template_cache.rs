@@ -8,7 +8,7 @@ pub use byteorder::{LittleEndian, ReadBytesExt};
 use encoding::EncodingRef;
 use log::trace;
 use std::borrow::BorrowMut;
-use std::collections::HashMap;
+use hashbrown::HashMap;
 use std::io::{Cursor, Seek, SeekFrom};
 
 pub type CachedTemplate<'chunk> = BinXMLTemplateDefinition<'chunk>;

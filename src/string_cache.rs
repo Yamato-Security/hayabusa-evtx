@@ -2,9 +2,9 @@ use crate::binxml::name::{BinXmlName, BinXmlNameLink};
 use crate::err::DeserializationResult;
 use crate::ChunkOffset;
 
+use hashbrown::HashMap;
 use log::trace;
 use std::borrow::BorrowMut;
-use hashbrown::HashMap;
 use std::io::{Cursor, Seek, SeekFrom};
 
 #[derive(Debug)]

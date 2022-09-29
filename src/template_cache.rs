@@ -6,9 +6,9 @@ use crate::ChunkOffset;
 pub use byteorder::{LittleEndian, ReadBytesExt};
 
 use encoding::EncodingRef;
+use hashbrown::HashMap;
 use log::trace;
 use std::borrow::BorrowMut;
-use hashbrown::HashMap;
 use std::io::{Cursor, Seek, SeekFrom};
 
 pub type CachedTemplate<'chunk> = BinXMLTemplateDefinition<'chunk>;

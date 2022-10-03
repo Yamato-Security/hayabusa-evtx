@@ -286,10 +286,10 @@ impl<T: ReadSeek> EvtxParser<T> {
                     return Err(EvtxError::calculation_error(format!(
                         "Could not calculate valid chunk count because stream size is less \
                             than evtx header block size. (stream_size: {}, header_block_size: {})",
-                        stream_size, evtx_header.header_block_size
-                    )));
-                }
-            };
+                            stream_size, evtx_header.header_block_size
+                        )));
+                    }
+                };
         let chunk_count = chunk_data_size / EVTX_CHUNK_SIZE as u64;
 
         debug!("EVTX Header: {:#?}", evtx_header);
@@ -670,7 +670,6 @@ mod tests {
         ensure_env_logger_initialized();
         let evtx_file = include_bytes!("../samples/new-user-security.evtx");
         let mut parser = EvtxParser::from_buffer(evtx_file.to_vec()).unwrap();
-
         assert_eq!(parser.records().count(), 4);
     }
 
@@ -703,7 +702,6 @@ mod tests {
         ensure_env_logger_initialized();
         let evtx_file = include_bytes!("../samples/new-user-security.evtx");
         let parser = EvtxParser::from_buffer(evtx_file.to_vec()).unwrap();
-
         assert_eq!(parser.into_chunks().count(), 1);
     }
 

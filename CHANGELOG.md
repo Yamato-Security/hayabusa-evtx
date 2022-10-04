@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.8.3 - 2022-10-04]
+
+### Changed
+
+- Update quick-xml to 0.24.1+ (@hitenkoku) (#7 #9)
+
 ## [0.8.1 - 2022-09-09]
 
 ### Changed

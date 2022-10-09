@@ -6,7 +6,7 @@ repository = "https://github.com/Yamato-Security/hayabusa-evtx"
 license = "MIT"
 readme = "README.md"
 
-version = "0.8.3"
+version = "0.8.4"
 authors = ["Omer Ben-Amram <omerbenamram@gmail.com>, Yamato Security"]
 edition = "2021"
 

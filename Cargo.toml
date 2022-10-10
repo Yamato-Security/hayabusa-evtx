@@ -6,7 +6,7 @@ repository = "https://github.com/Yamato-Security/hayabusa-evtx"
 license = "MIT"
 readme = "README.md"
 
-version = "0.8.4"
+version = "0.8.3"
 authors = ["Omer Ben-Amram <omerbenamram@gmail.com>, Yamato Security"]
 edition = "2021"
 
@@ -18,7 +18,7 @@ crc32fast = "1.*"
 chrono = { version = "0.4", features = ["serde"] }
 encoding = "0.2"
 byteorder = "1.4"
-quick-xml = "0.23.*"
+quick-xml = "0.25.*"
 thiserror = "1.0"
 log = { version = "0.4", features = ["release_max_level_debug"] }
 winstructs = "0.3"

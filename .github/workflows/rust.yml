@@ -73,4 +73,4 @@ jobs:
       - name: Run tests
         env:
           RUST_TEST_THREADS: 1
-        run: cargo test --verbose --target=${{ matrix.info.target }}
+        run: cargo test --verbose

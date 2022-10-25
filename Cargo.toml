@@ -36,18 +36,11 @@ indoc = { version = "1.0", optional = true }
 serde = "1.0"
 serde_json = "1.0"
 
-[target.'cfg(not(windows))'.dependencies]
-# jemalloc is significantly more peformant than the system allocator.
-jemallocator = { version = "0.5", optional = true }
-
-[target.'cfg(windows)'.dependencies]
-# jemalloc is significantly more peformant than the system allocator.
-rpmalloc = { version = "0.2", optional = true }
+mimalloc = { version = "*", default-features = false }
 
 
 [features]
 default = ["multithreading", "evtx_dump"]
-fast-alloc = ["jemallocator", "rpmalloc"]
 evtx_dump = ["simplelog", "clap", "dialoguer", "indoc", "anyhow"]
 multithreading = ["rayon"]
 

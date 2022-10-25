@@ -16,16 +16,9 @@ use std::ops::RangeInclusive;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
-#[cfg(all(feature = "fast-alloc", not(windows)))]
-use jemallocator::Jemalloc;
-
-#[cfg(all(feature = "fast-alloc", not(windows)))]
+use mimalloc::MiMalloc;
 #[global_allocator]
-static GLOBAL: Jemalloc = Jemalloc;
-
-#[cfg(all(feature = "fast-alloc", windows))]
-#[global_allocator]
-static ALLOC: rpmalloc::RpMalloc = rpmalloc::RpMalloc;
+static GLOBAL: MiMalloc = MiMalloc;
 
 #[derive(Copy, Clone, PartialOrd, PartialEq, Eq)]
 pub enum EvtxOutputFormat {

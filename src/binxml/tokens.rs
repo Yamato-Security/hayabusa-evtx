@@ -214,8 +214,7 @@ pub fn read_processing_instruction_data(cursor: &mut Cursor<&[u8]>) -> Result<St
         cursor.position(),
     );
 
-    let data =
-        try_read!(cursor, len_prefixed_utf_16_str, "pi_data")?.unwrap_or_default();
+    let data = try_read!(cursor, len_prefixed_utf_16_str, "pi_data")?.unwrap_or_default();
     trace!("PIData - {}", data,);
     Ok(data)
 }

@@ -15,10 +15,10 @@ exclude = ["**/*.evtx", "**/*.dat"]
 [dependencies]
 bitflags = "1.*"
 crc32fast = "1.*"
-chrono = { version = "0.4.22", features = ["serde"] }
+chrono = { version = "0.4.23", features = ["serde"] }
 encoding = "0.2"
 byteorder = "1.4"
-quick-xml = "0.25.*"
+quick-xml = "0.26.*"
 thiserror = "1.0"
 log = { version = "0.4", features = ["release_max_level_debug"] }
 winstructs = "0.3"

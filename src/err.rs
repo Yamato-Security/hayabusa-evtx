@@ -194,7 +194,7 @@ pub enum SerializationError {
 impl From<Box<dyn std::error::Error>> for SerializationError {
     fn from(inner: Box<dyn std::error::Error>) -> SerializationError {
         SerializationError::ExternalError {
-            cause: inner.to_string().to_owned(),
+            cause: inner.to_string(),
         }
     }
 }

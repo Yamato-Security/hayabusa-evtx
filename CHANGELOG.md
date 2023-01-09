@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.8.4 - 2023-01-09]
+
+- Updated quick-xml to 0.27.1, and other crates. (@hitenkoku) (#20)
+- Added a generic lookup feature for fast grep searches. (@hitenkoku) (#19) (https://github.com/omerbenamram/evtx/pull/205)
+
 ## [0.8.3 - 2022-10-04]
 
 ### Changed

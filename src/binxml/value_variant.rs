@@ -229,7 +229,7 @@ impl<'a> BinXmlValue<'a> {
                     .map_err(|e| {
                         WrappedIoError::io_error_with_message(
                             e,
-                            format!("failed to read sized utf-16 string (size `{}`)", sz),
+                            format!("failed to read sized utf-16 string (size `{sz}`)"),
                             cursor,
                         )
                     })?
@@ -384,7 +384,7 @@ impl<'a> BinXmlValue<'a> {
 
             _ => {
                 return Err(DeserializationError::UnimplementedValueVariant {
-                    name: format!("{:?}", value_type),
+                    name: format!("{value_type:?}"),
                     size,
                     offset: cursor.position(),
                 })
@@ -422,7 +422,7 @@ impl<'c> From<BinXmlValue<'c>> for serde_json::Value {
             BinXmlValue::BoolType(num) => json!(num),
             BinXmlValue::BinaryType(bytes) => {
                 // Bytes will be formatted as const length of 2 with '0' padding.
-                let repr: String = bytes.iter().map(|b| format!("{:02X}", b)).collect();
+                let repr: String = bytes.iter().map(|b| format!("{b:02X}")).collect();
                 json!(repr)
             }
             BinXmlValue::GuidType(guid) => json!(guid.to_string()),
@@ -485,7 +485,7 @@ impl<'c> From<&'c BinXmlValue<'c>> for serde_json::Value {
             BinXmlValue::BoolType(num) => json!(num),
             BinXmlValue::BinaryType(bytes) => {
                 // Bytes will be formatted as const length of 2 with '0' padding.
-                let repr: String = bytes.iter().map(|b| format!("{:02X}", b)).collect();
+                let repr: String = bytes.iter().map(|b| format!("{b:02X}")).collect();
                 json!(repr)
             }
             BinXmlValue::GuidType(guid) => json!(guid.to_string()),
@@ -551,7 +551,7 @@ impl<'a> BinXmlValue<'a> {
                 let mut repr = String::with_capacity(bytes.len() * 2);
 
                 for b in bytes.iter() {
-                    write!(repr, "{:02X}", b).expect("Writing to a String cannot fail");
+                    write!(repr, "{b:02X}").expect("Writing to a String cannot fail");
                 }
 
                 Cow::Owned(repr)

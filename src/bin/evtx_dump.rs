@@ -135,7 +135,7 @@ impl EvtxDump {
             Box::new(BufWriter::new(
                 Self::create_output_file(path, !matches.is_present("no-confirm-overwrite"))
                     .with_context(|| {
-                        format!("An error occurred while creating output file at `{}`", path)
+                        format!("An error occurred while creating output file at `{path}`")
                     })?,
             ))
         } else {
@@ -162,7 +162,7 @@ impl EvtxDump {
     /// Main entry point for `EvtxDump`
     pub fn run(&mut self) -> Result<()> {
         if let Err(err) = self.try_to_initialize_logging() {
-            eprintln!("{:?}", err);
+            eprintln!("{err:?}");
         }
 
         let mut parser = EvtxParser::from_path(&self.input)

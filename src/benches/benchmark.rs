@@ -14,7 +14,7 @@ fn process_90_records(buffer: &'static [u8]) {
             Ok(r) => {
                 assert_eq!(r.event_record_id, i as u64 + 1);
             }
-            Err(e) => println!("Error while reading record {}, {:?}", i, e),
+            Err(e) => println!("Error while reading record {i}, {e:?}"),
         }
     }
 }
@@ -27,7 +27,7 @@ fn process_90_records_json(buffer: &'static [u8]) {
             Ok(r) => {
                 assert_eq!(r.event_record_id, i as u64 + 1);
             }
-            Err(e) => println!("Error while reading record {}, {:?}", i, e),
+            Err(e) => println!("Error while reading record {i}, {e:?}"),
         }
     }
 }

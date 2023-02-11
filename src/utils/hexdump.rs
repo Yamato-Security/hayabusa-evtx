@@ -89,7 +89,7 @@ fn print_line(
 ) -> Result<String, Box<dyn std::error::Error>> {
     let mut s = String::new();
     // print address (ex - 000000d0)
-    write!(s, "\n{:08x}:", address)?;
+    write!(s, "\n{address:08x}:")?;
 
     let words = if (line.len() % bytes) == 0 {
         line.len() / bytes
@@ -109,7 +109,7 @@ fn print_line(
             }
         };
         match display {
-            'b' => write!(s, " {:03o}", word)?,
+            'b' => write!(s, " {word:03o}")?,
             'c' => {
                 if ((word as u8) as char).is_control() {
                     write!(s, " ")?
@@ -117,11 +117,11 @@ fn print_line(
                     write!(s, " {:03}", (word as u8) as char)?
                 }
             }
-            'C' => write!(s, " {:02x}", word)?,
-            'x' => write!(s, " {:04x}", word)?,
-            'o' => write!(s, " {:06o} ", word)?,
-            'd' => write!(s, "  {:05} ", word)?,
-            _ => write!(s, " {:04x}", word)?,
+            'C' => write!(s, " {word:02x}")?,
+            'x' => write!(s, " {word:04x}")?,
+            'o' => write!(s, " {word:06o} ")?,
+            'd' => write!(s, "  {word:05} ")?,
+            _ => write!(s, " {word:04x}")?,
         }
     }
 

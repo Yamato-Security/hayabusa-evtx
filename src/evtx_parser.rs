@@ -31,7 +31,7 @@ pub const EVTX_FILE_HEADER_SIZE: usize = 4096;
 // Taken from proposed std code.
 pub trait ReadSeek: Read + Seek {
     fn tell(&mut self) -> io::Result<u64> {
-        self.seek(SeekFrom::Current(0))
+        self.stream_position()
     }
     fn stream_len(&mut self) -> io::Result<u64> {
         let old_pos = self.tell()?;
@@ -590,7 +590,7 @@ mod tests {
                         "Parser is skipping records!"
                     );
                 }
-                Err(e) => panic!("Error while reading record {}, {:?}", i, e),
+                Err(e) => panic!("Error while reading record {i}, {e:?}"),
             }
         }
 
@@ -622,7 +622,7 @@ mod tests {
                         "Parser is skipping records!"
                     );
                 }
-                Err(e) => panic!("Error while reading record {}, {:?}", i, e),
+                Err(e) => panic!("Error while reading record {i}, {e:?}"),
             }
         }
     }
@@ -638,7 +638,7 @@ mod tests {
                 Ok(r) => {
                     assert_eq!(r.event_record_id, i as u64 + 1);
                 }
-                Err(e) => println!("Error while reading record {}, {:?}", i, e),
+                Err(e) => println!("Error while reading record {i}, {e:?}"),
             }
         }
     }
@@ -658,7 +658,7 @@ mod tests {
                 Ok(r) => {
                     record_ids.insert(r.event_record_id);
                 }
-                Err(e) => panic!("Error while reading record {:?}", e),
+                Err(e) => panic!("Error while reading record {e:?}"),
             }
         }
 

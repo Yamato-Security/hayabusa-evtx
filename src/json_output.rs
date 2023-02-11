@@ -169,12 +169,12 @@ impl JsonOutput {
             let mut free_slot = 1;
 
             // If it is a concrete value, we look for another slot.
-            while container.get(&format!("{}_{}", name, free_slot)).is_some() {
+            while container.get(&format!("{name}_{free_slot}")).is_some() {
                 // Value is an empty object - we can override it's value.
                 free_slot += 1
             }
 
-            container.insert(format!("{}_{}", name, free_slot), old_value);
+            container.insert(format!("{name}_{free_slot}"), old_value);
         };
 
         Ok(())
@@ -215,7 +215,7 @@ impl JsonOutput {
                 }
                 })?;
 
-                value.insert(format!("{}_attributes", name), Value::Object(attributes));
+                value.insert(format!("{name}_attributes"), Value::Object(attributes));
 
                 // If the element's main value is empty, we want to remove it because we
                 // do not want the value to represent an empty object.
@@ -358,8 +358,7 @@ impl BinXmlOutput for JsonOutput {
                         current_value => {
                             return Err(SerializationError::JsonStructureError {
                             message: format!(
-                                "expected current value to be a String or an Array, found {:?}, new value is {:?}",
-                                current_value, value
+                                "expected current value to be a String or an Array, found {current_value:?}, new value is {value:?}"
                             ),
                         });
                         }
@@ -376,8 +375,7 @@ impl BinXmlOutput for JsonOutput {
             current_value => {
                 return Err(SerializationError::JsonStructureError {
                     message: format!(
-                        "expected current value to be a String or an Array, found {:?}, new value is {:?}",
-                        current_value, value
+                        "expected current value to be a String or an Array, found {current_value:?}, new value is {value:?}"
                     ),
                 });
             }
@@ -406,7 +404,7 @@ impl BinXmlOutput for JsonOutput {
                 Ok(())
             }
             Err(_) => Err(JsonStructureError {
-                message: format!("Unterminated XML Entity {}", entity_ref),
+                message: format!("Unterminated XML Entity {entity_ref}"),
             }),
         }
     }
@@ -550,7 +548,7 @@ mod tests {
             .separate_json_attributes(true);
 
         let json = xml_to_json(s1, &settings);
-        println!("json: {}", json);
+        println!("json: {json}");
 
         assert_eq!(xml_to_json(s1, &settings), s2)
     }

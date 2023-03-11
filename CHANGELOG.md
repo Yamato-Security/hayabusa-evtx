@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.X.X - 20XX-XX-XX]
+
+### Changed
+
+- AddedRecover entries from empty pages. - thanks @forensicmatt (@hitenkoku) (#29)
+
 ## [0.8.3 - 2022-10-04]
 
 ### Changed

@@ -585,6 +585,7 @@ dependencies = [
  "insta",
  "jemallocator",
  "log",
+ "memchr",
  "predicates",
  "pretty_assertions",
  "quick-xml",

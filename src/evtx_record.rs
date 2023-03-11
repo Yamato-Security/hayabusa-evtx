@@ -14,6 +14,20 @@ use std::sync::Arc;
 
 pub type RecordId = u64;
 
+#[derive(Debug, Clone, PartialEq)]
+pub enum RecordAllocation {
+    Allocated,
+    EmptyPage,
+}
+impl std::fmt::Display for RecordAllocation {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Allocated => write!(f, "Allocated"),
+            Self::EmptyPage => write!(f, "EmptyPageRecovery"),
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct EvtxRecord<'a> {
     pub chunk: &'a EvtxChunk<'a>,
@@ -21,6 +35,9 @@ pub struct EvtxRecord<'a> {
     pub timestamp: DateTime<Utc>,
     pub tokens: Vec<BinXMLDeserializedTokens<'a>>,
     pub settings: Arc<ParserSettings>,
+    /// This is the allocation status of the record because
+    /// its possible to recover records
+    pub allocation: RecordAllocation,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -30,11 +47,12 @@ pub struct EvtxRecordHeader {
     pub timestamp: DateTime<Utc>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct SerializedEvtxRecord<T> {
     pub event_record_id: RecordId,
     pub timestamp: DateTime<Utc>,
     pub data: T,
+    pub allocation: RecordAllocation,
 }
 
 impl EvtxRecordHeader {
@@ -84,12 +102,15 @@ impl<'a> EvtxRecord<'a> {
 
         let event_record_id = self.event_record_id;
         let timestamp = self.timestamp;
+        let allocation = self.allocation.clone();
+
         self.into_output(&mut output_builder)?;
 
         Ok(SerializedEvtxRecord {
             event_record_id,
             timestamp,
             data: output_builder.into_value()?,
+            allocation,
         })
     }
 
@@ -109,6 +130,7 @@ impl<'a> EvtxRecord<'a> {
             event_record_id: record_with_json_value.event_record_id,
             timestamp: record_with_json_value.timestamp,
             data,
+            allocation: record_with_json_value.allocation,
         })
     }
 
@@ -118,6 +140,7 @@ impl<'a> EvtxRecord<'a> {
 
         let event_record_id = self.event_record_id;
         let timestamp = self.timestamp;
+        let allocation = self.allocation.clone();
         self.into_output(&mut output_builder)?;
 
         let data =
@@ -127,6 +150,7 @@ impl<'a> EvtxRecord<'a> {
             event_record_id,
             timestamp,
             data,
+            allocation,
         })
     }
 }

@@ -1,10 +1,24 @@
 # Changelog
 
-## [0.X.X - 20XX-XX-XX]
+## [0.8.5 - 2023-03-11]
+
+### Added
+
+- Added recovery of entries from empty pages. - thanks to @forensicmatt (@hitenkoku) (#29)
+
+### Removed
+
+- Removed the generic lookup feature for fast grep searches as it slowed down performance.
+
+## [0.8.4 - 2022-10-22]
 
 ### Changed
 
-- AddedRecover entries from empty pages. - thanks @forensicmatt (@hitenkoku) (#29)
+- Updated quick-xml to 0.27.1, and other crates. (@hitenkoku) (#20)
+
+### Added
+
+- Added a generic lookup feature for fast grep searches. (@hitenkoku) (#19) (omerbenamram/evtx#205)
 
 ## [0.8.3 - 2022-10-04]
 

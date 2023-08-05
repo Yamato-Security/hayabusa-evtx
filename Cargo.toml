@@ -13,7 +13,7 @@ edition = "2021"
 exclude = ["**/*.evtx", "**/*.dat"]
 
 [dependencies]
-bitflags = "1.*"
+bitflags = "2.*"
 crc32fast = "1.*"
 chrono = { version = "0.4.*", features = ["serde"] }
 encoding = "0.*"

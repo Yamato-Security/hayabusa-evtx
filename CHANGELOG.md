@@ -1,14 +1,19 @@
 # Changelog
 
+## [0.8.7 - 2023-08-05]
+
+Made it possible to reference the allocation field externally.
+Updated crates.
+
 ## [0.8.6 - 2023-06-15]
 
-Update crates.
+Updated crates.
 
 ## [0.8.5 - 2023-03-11]
 
 ### Added
 
-- Added recovery of entries from empty pages. - thanks to @forensicmatt (@hitenkoku) (#29)
+- Added recovery of entries from empty pages feature. - thanks to @forensicmatt (@hitenkoku) (#29)
 
 ### Removed
 

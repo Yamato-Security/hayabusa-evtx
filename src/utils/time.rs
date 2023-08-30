@@ -54,7 +54,7 @@ mod tests {
         let data = [227u8, 7, 3, 0, 5, 0, 8, 0, 23, 0, 22, 0, 5, 0, 0, 0];
 
         let date = read_systemtime(&mut Cursor::new(data)).unwrap();
-        let expected_date = DateTime::<Utc>::from_utc(
+        let expected_date = DateTime::<Utc>::from_naive_utc_and_offset(
             NaiveDate::from_ymd_opt(2019, 3, 8)
                 .unwrap()
                 .and_hms_nano_opt(23, 22, 5, 0)

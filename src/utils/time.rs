@@ -23,7 +23,7 @@ pub fn read_systemtime<R: ReadSeek>(r: &mut R) -> DeserializationResult<DateTime
         && second == 0
         && milliseconds == 0
     {
-        return Ok(DateTime::from_utc(
+        return Ok(DateTime::from_naive_utc_and_offset(
             NaiveDate::from_ymd_opt(1601, 1, 1)
                 .unwrap()
                 .and_hms_nano_opt(0, 0, 0, 0)
@@ -32,7 +32,7 @@ pub fn read_systemtime<R: ReadSeek>(r: &mut R) -> DeserializationResult<DateTime
         ));
     }
 
-    Ok(DateTime::from_utc(
+    Ok(DateTime::from_naive_utc_and_offset(
         NaiveDate::from_ymd_opt(year, month, day)
             .ok_or(DeserializationError::InvalidDateTimeError)?
             .and_hms_nano_opt(hour, minute, second, milliseconds)

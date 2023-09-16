@@ -428,8 +428,10 @@ impl<'c> From<BinXmlValue<'c>> for serde_json::Value {
             BinXmlValue::BoolType(num) => json!(num),
             BinXmlValue::BinaryType(bytes) => {
                 // Bytes will be formatted as const length of 2 with '0' padding.
-                let repr: String = bytes.iter().fold(String::new(),|mut output, b| {let _ = write!(output, "{b:02X}"); output
-            });
+                let repr: String = bytes.iter().fold(String::new(), |mut output, b| {
+                    let _ = write!(output, "{b:02X}");
+                    output
+                });
                 json!(repr)
             }
             BinXmlValue::GuidType(guid) => json!(guid.to_string()),
@@ -492,7 +494,10 @@ impl<'c> From<&'c BinXmlValue<'c>> for serde_json::Value {
             BinXmlValue::BoolType(num) => json!(num),
             BinXmlValue::BinaryType(bytes) => {
                 // Bytes will be formatted as const length of 2 with '0' padding.
-                let repr: String = bytes.iter().fold(String::new(), |mut output, b| {let _ = write!(output, "{b:02X}"); output});
+                let repr: String = bytes.iter().fold(String::new(), |mut output, b| {
+                    let _ = write!(output, "{b:02X}");
+                    output
+                });
                 json!(repr)
             }
             BinXmlValue::GuidType(guid) => json!(guid.to_string()),

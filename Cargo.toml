@@ -50,7 +50,7 @@ rpmalloc = { version = "0.2", optional = true }
 [features]
 default = ["multithreading", "evtx_dump"]
 fast-alloc = ["jemallocator", "rpmalloc"]
-evtx_dump = ["simplelog", "clap", "dialoguer", "indoc", "anyhow"]
+evtx_dump = ["clap", "dialoguer", "indoc", "anyhow"]
 multithreading = ["rayon"]
 
 [dev-dependencies]

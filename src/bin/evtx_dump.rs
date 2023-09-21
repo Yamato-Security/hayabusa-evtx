@@ -268,14 +268,15 @@ impl EvtxDump {
     }
 
     fn try_to_initialize_logging(&self) -> Result<()> {
-        if let Some(level) = self.verbosity_level {
-            simplelog::WriteLogger::init(
-                level.to_level_filter(),
-                simplelog::Config::default(),
-                io::stderr(),
-            )
-            .with_context(|| "Failed to initialize logging")?;
-        }
+        // hayabusa-evtx does not use logging, so this is commented out.
+        // if let Some(level) = self.verbosity_level {
+        //     simplelog::WriteLogger::init(
+        //         level.to_level_filter(),
+        //         simplelog::Config::default(),
+        //         io::stderr(),
+        //     )
+        //     .with_context(|| "Failed to initialize logging")?;
+        // }
 
         Ok(())
     }

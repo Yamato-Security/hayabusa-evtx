@@ -9,7 +9,6 @@ use encoding::all::encodings;
 use encoding::types::Encoding;
 use evtx::err::Result as EvtxResult;
 use evtx::{EvtxParser, ParserSettings, SerializedEvtxRecord};
-use log::Level;
 use std::fs::{self, File};
 use std::io::{self, BufWriter, Write};
 use std::ops::RangeInclusive;
@@ -39,7 +38,6 @@ struct EvtxDump {
     show_record_number: bool,
     output_format: EvtxOutputFormat,
     output: Box<dyn Write>,
-    verbosity_level: Option<Level>,
     stop_after_error: bool,
     /// When set, only the specified events (offseted reltaive to file) will be outputted.
     ranges: Option<Ranges>,
@@ -117,16 +115,17 @@ impl EvtxDump {
             .value_of("event-ranges")
             .map(|s| Ranges::from_str(s).expect("used validator"));
 
-        let verbosity_level = match matches.occurrences_of("verbose") {
-            0 => None,
-            1 => Some(Level::Info),
-            2 => Some(Level::Debug),
-            3 => Some(Level::Trace),
-            _ => {
-                eprintln!("using more than  -vvv does not affect verbosity level");
-                Some(Level::Trace)
-            }
-        };
+        // hayabusa-evtx does not use logging, so this is commented out.
+        // let verbosity_level = match matches.occurrences_of("verbose") {
+        //     0 => None,
+        //     1 => Some(Level::Info),
+        //     2 => Some(Level::Debug),
+        //     3 => Some(Level::Trace),
+        //     _ => {
+        //         eprintln!("using more than  -vvv does not affect verbosity level");
+        //         Some(Level::Trace)
+        //     }
+        // };
 
         let ansi_codec = encodings()
             .iter()
@@ -156,7 +155,6 @@ impl EvtxDump {
             show_record_number: !no_show_record_number,
             output_format,
             output,
-            verbosity_level,
             stop_after_error,
             ranges: event_ranges,
             display_allocation,

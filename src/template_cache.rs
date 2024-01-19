@@ -3,7 +3,7 @@ use crate::err::DeserializationResult;
 
 use crate::model::deserialized::BinXMLTemplateDefinition;
 use crate::ChunkOffset;
-pub use byteorder::{LittleEndian, ReadBytesExt};
+
 
 use encoding::EncodingRef;
 use hashbrown::HashMap;

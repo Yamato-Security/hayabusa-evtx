@@ -4,7 +4,6 @@ use crate::err::DeserializationResult;
 use crate::model::deserialized::BinXMLTemplateDefinition;
 use crate::ChunkOffset;
 
-
 use encoding::EncodingRef;
 use hashbrown::HashMap;
 use log::trace;

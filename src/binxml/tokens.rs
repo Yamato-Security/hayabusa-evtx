@@ -1,6 +1,6 @@
 use crate::err::{DeserializationError, DeserializationResult as Result, WrappedIoError};
 
-pub use byteorder::{ReadBytesExt};
+pub use byteorder::ReadBytesExt;
 use winstructs::guid::Guid;
 
 use crate::model::deserialized::*;

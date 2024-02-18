@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.8.8 - 2024-02-16]
+
+Removed unused crates `serde` and `simplelog`.
+
 ## [0.8.7 - 2023-08-05]
 
 Made it possible to reference the allocation field externally.

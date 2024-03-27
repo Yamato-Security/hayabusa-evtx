@@ -52,7 +52,7 @@ evtx_dump = ["clap", "dialoguer", "indoc", "anyhow"]
 multithreading = ["rayon"]
 
 [dev-dependencies]
-insta = { version = "1", features = ["json"] }
+insta = { version = "=1.35.1", features = ["json"] }
 pretty_assertions = "1.*"
 criterion = "0.5"
 assert_cmd = "2"

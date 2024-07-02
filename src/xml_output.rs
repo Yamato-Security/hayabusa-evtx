@@ -7,7 +7,7 @@ use log::trace;
 use std::io::Write;
 
 use quick_xml::events::attributes::Attribute;
-use quick_xml::events::{BytesDecl, BytesEnd, BytesStart, BytesText, Event, BytesPI};
+use quick_xml::events::{BytesDecl, BytesEnd, BytesPI, BytesStart, BytesText, Event};
 use quick_xml::Writer;
 
 use crate::binxml::name::BinXmlName;

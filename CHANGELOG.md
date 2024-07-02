@@ -2,7 +2,7 @@
 
 ## [0.8.9 - 2024-07-02]
 
-Fixed a compiler error when using the latest `quick-xml`. (@YamatoSecurity)
+Fixed a compiler error when using the latest `quick-xml`. (@hitenkoku)
 
 ## [0.8.8 - 2024-02-16]
 

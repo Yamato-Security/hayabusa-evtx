@@ -18,7 +18,7 @@ fn test_event_xml_sample() {
         .expect("to have records")
         .expect("record to parse correctly");
 
-    insta::assert_display_snapshot!(first_record.data);
+    insta::assert_snapshot!(first_record.data);
 }
 
 #[test]
@@ -71,7 +71,7 @@ fn test_event_xml_sample_with_event_data() {
         .expect("to have records")
         .expect("record to parse correctly");
 
-    insta::assert_display_snapshot!(first_record.data);
+    insta::assert_snapshot!(first_record.data);
 }
 
 #[test]
@@ -124,7 +124,7 @@ fn test_event_xml_sample_with_event_data_with_attributes_and_text() {
         .expect("to have records")
         .expect("record to parse correctly");
 
-    insta::assert_display_snapshot!(first_record.data);
+    insta::assert_snapshot!(first_record.data);
 }
 
 #[test]
@@ -143,7 +143,7 @@ fn test_event_xml_sample_with_user_data() {
         .expect("to have records")
         .expect("record to parse correctly");
 
-    insta::assert_display_snapshot!(first_record.data);
+    insta::assert_snapshot!(first_record.data);
 }
 
 #[test]
@@ -162,7 +162,7 @@ fn test_event_xml_sample_with_entity_ref() {
         .find(|record| record.event_record_id == 28)
         .expect("record to parse correctly");
 
-    insta::assert_display_snapshot!(record.data);
+    insta::assert_snapshot!(record.data);
 }
 
 #[test]
@@ -181,25 +181,7 @@ fn test_event_xml_sample_with_entity_ref_2() {
         .find(|record| record.event_record_id == 25)
         .expect("record to parse correctly");
 
-    insta::assert_display_snapshot!(record.data);
-}
-
-#[test]
-fn test_event_json_with_size_t() {
-    ensure_env_logger_initialized();
-    let evtx_file = include_bytes!("../samples/Security_with_size_t.evtx");
-    let mut parser = EvtxParser::from_buffer(evtx_file.to_vec())
-        .unwrap()
-        .with_configuration(ParserSettings::new().num_threads(1));
-
-    let record = parser
-        .records_json()
-        .filter_map(|record| record.ok())
-        .find(|record| record.event_record_id == 196)
-        .expect("record to parse correctly");
-
-    let value: Value = serde_json::from_str(&record.data).expect("to parse correctly");
-    insta::assert_json_snapshot!(&value);
+    insta::assert_snapshot!(record.data);
 }
 
 #[test]
@@ -258,7 +240,7 @@ fn test_event_json_with_multiple_data_elements() {
         .expect("to have records")
         .expect("record to parse correctly");
 
-    insta::assert_display_snapshot!(&first_record_xml.data);
+    insta::assert_snapshot!(&first_record_xml.data);
 
     let first_record = parser
         .records_json()

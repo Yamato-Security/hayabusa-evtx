@@ -30,7 +30,7 @@ memchr = "2.*"
 
 # `evtx_dump` dependencies
 anyhow = { version = "*", optional = true }
-clap = { version = "3.2", optional = true }
+clap = { version = "4", optional = true }
 dialoguer = { version = "*", optional = true }
 indoc = { version = "*", optional = true }
 

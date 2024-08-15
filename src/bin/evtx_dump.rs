@@ -133,13 +133,12 @@ impl EvtxDump {
             .find(|c| {
                 c.name()
                     == matches
-                        .get_one::<&String>("ansi-codec")
+                        .get_one::<String>("ansi-codec")
                         .expect("has set default")
-                        .as_str()
             })
             .expect("possible values are derived from `encodings()`");
 
-        let output: Box<dyn Write> = if let Some(path) = matches.get_one::<&String>("output-target")
+        let output: Box<dyn Write> = if let Some(path) = matches.get_one::<String>("output-target")
         {
             Box::new(BufWriter::new(
                 Self::create_output_file(path, !matches.get_flag("no-confirm-overwrite"))

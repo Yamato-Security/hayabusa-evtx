@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.8.10 - 2024-08-16]
+
+Merged the bug fixes and enhancements in the original [evtx 0.8.3](https://github.com/omerbenamram/evtx/releases/tag/v0.8.3) crate. (@hitenkoku)
+
 ## [0.8.9 - 2024-07-02]
 
 Fixed a compiler error when using the latest `quick-xml`. (@hitenkoku)

@@ -193,8 +193,8 @@ pub enum SerializationError {
     #[error("Error while serializing record")]
     IoError {
         #[from]
-        source: io::Error
-    }
+        source: io::Error,
+    },
 }
 
 #[derive(Debug, Error)]

@@ -186,6 +186,15 @@ pub enum SerializationError {
 
     #[error("Unimplemented: {message}")]
     Unimplemented { message: String },
+
+    // TODO オリジナルのevtxリポジトリで修正がはいるまでの、暫定修正
+    // 以下PRにより、Writerが返すErrorの型が変わったため、io:Erorrを追加
+    // https://github.com/tafia/quick-xml/pull/810
+    #[error("Error while serializing record")]
+    IoError {
+        #[from]
+        source: io::Error,
+    },
 }
 
 #[derive(Debug, Error)]

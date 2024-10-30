@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.8.11 - 2024-10-30]
+
+Fixed a compiler bug with `quick-xml` 0.37.0. Updated crates. (#67) (@fukusuket)
+
 ## [0.8.10 - 2024-08-16]
 
 Merged the bug fixes and enhancements in the original [evtx 0.8.3](https://github.com/omerbenamram/evtx/releases/tag/v0.8.3) crate. (@hitenkoku)

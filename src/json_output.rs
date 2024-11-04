@@ -215,22 +215,31 @@ impl JsonOutput {
                 }
                 })?;
                 // We do a linear probe in case XML contains duplicate keys
-                if let Some(old_attribute) = value.insert(format!("{}_attributes", name), Value::Null) {
+                if let Some(old_attribute) =
+                    value.insert(format!("{}_attributes", name), Value::Null)
+                {
                     if let Some(old_value) = value.insert(name.to_string(), Value::Null) {
                         let mut free_slot = 1;
                         // If it is a concrete value, we look for another slot.
-                        while value.get(&format!("{}_{}", name, free_slot)).is_some() || value.get(&format!("{}_{}_attributes", name, free_slot)).is_some() {
+                        while value.get(&format!("{}_{}", name, free_slot)).is_some()
+                            || value
+                                .get(&format!("{}_{}_attributes", name, free_slot))
+                                .is_some()
+                        {
                             // Value is an empty object - we can override it's value.
                             free_slot += 1
                         }
                         if let Some(old_value_object) = old_value.as_object() {
-                            if !old_value_object.is_empty(){
+                            if !old_value_object.is_empty() {
                                 value.insert(format!("{}_{}", name, free_slot), old_value);
                             }
                         };
                         if let Some(old_attribute_object) = old_attribute.as_object() {
                             if !old_attribute_object.is_empty() {
-                                value.insert(format!("{}_{}_attributes", name, free_slot), old_attribute);
+                                value.insert(
+                                    format!("{}_{}_attributes", name, free_slot),
+                                    old_attribute,
+                                );
                             };
                         };
                     };

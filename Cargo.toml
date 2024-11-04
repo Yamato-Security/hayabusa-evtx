@@ -34,7 +34,7 @@ clap = { version = "4", optional = true }
 dialoguer = { version = "*", optional = true }
 indoc = { version = "*", optional = true }
 
-serde_json = "1"
+serde_json = { version = "1", features = ["preserve_order"]}
 
 [target.'cfg(not(windows))'.dependencies]
 # jemalloc is significantly more peformant than the system allocator.

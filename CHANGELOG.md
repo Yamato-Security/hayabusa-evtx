@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.8.12 - 2024-11-04]
+
+- JSON output order is now preserved. (omerbenamram/evtx#242)
+- JSON now outputs fields that have the same name multiple times. Before, only the last one was outputted. (omerbenamram/evtx#245)
+
 ## [0.8.11 - 2024-10-30]
 
 Fixed a compiler bug with `quick-xml` 0.37.0. Updated crates. (#67) (@fukusuket)

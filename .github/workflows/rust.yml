@@ -38,7 +38,7 @@ jobs:
             }
     runs-on: ${{ matrix.info.os }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
       - name: Set up Rust toolchain
@@ -56,13 +56,13 @@ jobs:
       - name: Prepare Clippy
         run: rustup component add clippy
       - name: Run clippy action to produce annotations
-        uses: actions-rs/clippy-check@v1
+        uses: clechasseur/rs-clippy-check@v3
         with:
           args: --all-targets -- -D warnings
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Build tests
         if: ${{ steps.skip_check.outputs.should_skip != 'true' }}
-        uses: ClementTsang/cargo-action@v0.0.2
+        uses: ClementTsang/cargo-action@v0.0.6
         with:
           command: test
           args: --no-run --locked ${{ matrix.features }} --target=${{ matrix.info.target }}

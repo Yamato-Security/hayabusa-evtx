@@ -516,7 +516,7 @@ pub struct IterChunks<'c, T: ReadSeek> {
     current_chunk_number: u64,
 }
 
-impl<'c, T: ReadSeek> Iterator for IterChunks<'c, T> {
+impl<T: ReadSeek> Iterator for IterChunks<'_, T> {
     type Item = Result<EvtxChunkData>;
     fn next(&mut self) -> Option<<Self as Iterator>::Item> {
         match self.parser.find_next_chunk(self.current_chunk_number) {

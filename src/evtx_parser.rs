@@ -431,7 +431,7 @@ impl<T: ReadSeek> EvtxParser<T> {
     pub fn serialized_records<'a, U: Send>(
         &'a mut self,
         f: impl FnMut(Result<EvtxRecord<'_>>) -> Result<U> + Send + Sync + Clone + 'a,
-    ) -> impl Iterator<Item = Result<U>> + '_ {
+    ) -> impl Iterator<Item = Result<U>> + 'a {
         // Retrieve parser settings here, while `self` is immutably borrowed.
         let num_threads = max(self.config.num_threads, 1);
         let chunk_settings = Arc::clone(&self.config);

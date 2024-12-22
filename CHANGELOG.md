@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.8.13 - 2024-12-23]
+
+- Compiler warning fixed. (#73) (@fukusuket)
+- Updated crates.
+
 ## [0.8.12 - 2024-11-04]
 
 - JSON output order is now preserved. (omerbenamram/evtx#242)

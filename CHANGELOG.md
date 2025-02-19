@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.8.14 - 2024-02-20]
+
+- Compiler warnings fixed. (@fukusuket)
+- Updated crates
+
 ## [0.8.13 - 2024-12-23]
 
 - Compiler warning fixed. (#73) (@fukusuket)

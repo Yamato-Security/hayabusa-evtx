@@ -395,10 +395,7 @@ impl<T: ReadSeek> EvtxParser<T> {
                     // We try to read past the `chunk_count` to allow for dirty files.
                     // But if we get an empty chunk, we need to keep looking.
                     // Increment and try again.
-                    chunk_number = match chunk_number.checked_add(1) {
-                        None => return None,
-                        Some(n) => n,
-                    }
+                    chunk_number = chunk_number.checked_add(1)?
                 }
                 Ok(Some(chunk)) => {
                     return Some((Ok(chunk), chunk_number));
@@ -522,10 +519,7 @@ impl<T: ReadSeek> Iterator for IterChunks<'_, T> {
         match self.parser.find_next_chunk(self.current_chunk_number) {
             None => None,
             Some((chunk, chunk_number)) => {
-                self.current_chunk_number = match chunk_number.checked_add(1) {
-                    None => return None,
-                    Some(n) => n,
-                };
+                self.current_chunk_number = chunk_number.checked_add(1)?;
 
                 Some(chunk)
             }
@@ -545,10 +539,7 @@ impl<T: ReadSeek> Iterator for IntoIterChunks<T> {
         match self.parser.find_next_chunk(self.current_chunk_number) {
             None => None,
             Some((chunk, chunk_number)) => {
-                self.current_chunk_number = match chunk_number.checked_add(1) {
-                    None => return None,
-                    Some(n) => n,
-                };
+                self.current_chunk_number = chunk_number.checked_add(1)?;
 
                 Some(chunk)
             }

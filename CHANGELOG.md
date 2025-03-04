@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.9.0 - 2025-03-04]
+
+- Updated to Rust edition 2024 (omerbenamram/evtx#250)
+
 ## [0.8.14 - 2024-02-20]
 
 - Compiler warnings fixed. (@fukusuket)

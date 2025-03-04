@@ -250,7 +250,7 @@ impl<'a> Iterator for IterTokens<'a> {
 #[cfg(test)]
 mod tests {
     use crate::evtx_chunk::EvtxChunkData;
-    use crate::{ensure_env_logger_initialized, ParserSettings};
+    use crate::{ParserSettings, ensure_env_logger_initialized};
     use std::sync::Arc;
 
     #[test]
@@ -281,13 +281,15 @@ mod tests {
         let records = evtx_chunk.iter();
 
         for record in records.take(100) {
-            assert!(!record
-                .unwrap()
-                .into_xml()
-                .unwrap()
-                .data
-                .chars()
-                .any(|c| c == '\0'))
+            assert!(
+                !record
+                    .unwrap()
+                    .into_xml()
+                    .unwrap()
+                    .data
+                    .chars()
+                    .any(|c| c == '\0')
+            )
         }
     }
 

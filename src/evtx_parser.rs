@@ -15,8 +15,8 @@ use std::fs::File;
 use std::io::{self, Cursor, Read, Seek, SeekFrom};
 
 use crate::EvtxRecord;
-use encoding::all::WINDOWS_1252;
 use encoding::EncodingRef;
+use encoding::all::WINDOWS_1252;
 use std::cmp::max;
 use std::fmt;
 use std::fmt::Debug;
@@ -336,9 +336,7 @@ impl<T: ReadSeek> EvtxParser<T> {
 
         trace!(
             "Offset `0x{:08x} ({})` - Reading chunk number `{}`",
-            chunk_offset,
-            chunk_offset,
-            chunk_number
+            chunk_offset, chunk_offset, chunk_number
         );
 
         data.seek(SeekFrom::Start(chunk_offset as u64))
@@ -601,16 +599,20 @@ mod tests {
         }
 
         // It should be empty, and not a [].
-        assert!(records[0]
-            .as_ref()
-            .unwrap()
-            .data
-            .contains("<Binary></Binary>"));
-        assert!(records[1]
-            .as_ref()
-            .unwrap()
-            .data
-            .contains("<Binary>E107070003000C00110010001C00D6000000000000000000</Binary>"));
+        assert!(
+            records[0]
+                .as_ref()
+                .unwrap()
+                .data
+                .contains("<Binary></Binary>")
+        );
+        assert!(
+            records[1]
+                .as_ref()
+                .unwrap()
+                .data
+                .contains("<Binary>E107070003000C00110010001C00D6000000000000000000</Binary>")
+        );
     }
 
     #[test]

@@ -147,18 +147,14 @@ macro_rules! try_read {
         Guid::from_reader($cursor).map_err(|e| capture_context!($cursor, e, "guid", $name))
     };
 
-    ($cursor: ident, len_prefixed_utf_16_str) => {{
-        try_read!($cursor, len_prefixed_utf_16_str, "<Unknown>")
-    }};
+    ($cursor: ident, len_prefixed_utf_16_str) => {{ try_read!($cursor, len_prefixed_utf_16_str, "<Unknown>") }};
 
     ($cursor: ident, len_prefixed_utf_16_str, $name: expr) => {
         read_len_prefixed_utf16_string($cursor, false)
             .map_err(|e| capture_context!($cursor, e, "len_prefixed_utf_16_str", $name))
     };
 
-    ($cursor: ident, len_prefixed_utf_16_str_nul_terminated) => {{
-        try_read!($cursor, len_prefixed_utf_16_str_nul_terminated, "<Unknown>")
-    }};
+    ($cursor: ident, len_prefixed_utf_16_str_nul_terminated) => {{ try_read!($cursor, len_prefixed_utf_16_str_nul_terminated, "<Unknown>") }};
 
     ($cursor: ident, len_prefixed_utf_16_str_nul_terminated, $name: expr) => {
         read_len_prefixed_utf16_string($cursor, true).map_err(|e| {
@@ -166,9 +162,7 @@ macro_rules! try_read {
         })
     };
 
-    ($cursor: ident, null_terminated_utf_16_str) => {{
-        try_read!($cursor, null_terminated_utf_16_str, "<Unknown>")
-    }};
+    ($cursor: ident, null_terminated_utf_16_str) => {{ try_read!($cursor, null_terminated_utf_16_str, "<Unknown>") }};
 
     ($cursor: ident, null_terminated_utf_16_str, $name: expr) => {
         read_null_terminated_utf16_string($cursor)
@@ -183,9 +177,7 @@ macro_rules! try_read {
         try_read!($cursor, sid, "<Unknown>")
     };
 
-    ($cursor: ident, hex32) => {{
-        try_read!($cursor, i32).map(|value| Cow::Owned(format!("0x{:x}", value)))
-    }};
+    ($cursor: ident, hex32) => {{ try_read!($cursor, i32).map(|value| Cow::Owned(format!("0x{:x}", value))) }};
 
     ($cursor: ident, hex64) => {
         try_read!($cursor, i64).map(|value| Cow::Owned(format!("0x{:x}", value)))

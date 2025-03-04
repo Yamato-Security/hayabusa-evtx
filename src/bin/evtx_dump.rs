@@ -1,6 +1,6 @@
 #![allow(clippy::upper_case_acronyms)]
 
-use anyhow::{bail, format_err, Context, Result};
+use anyhow::{Context, Result, bail, format_err};
 use clap::{Arg, ArgAction, ArgMatches, Command};
 use dialoguer::Confirm;
 use indoc::indoc;
@@ -104,7 +104,9 @@ impl EvtxDump {
         let num_threads = match (cfg!(feature = "multithreading"), num_threads) {
             (true, number) => number,
             (false, _) => {
-                eprintln!("turned on threads, but library was compiled without `multithreading` feature! using fallback sync iterator");
+                eprintln!(
+                    "turned on threads, but library was compiled without `multithreading` feature! using fallback sync iterator"
+                );
                 1
             }
         };

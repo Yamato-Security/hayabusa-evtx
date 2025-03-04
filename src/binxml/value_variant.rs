@@ -14,7 +14,7 @@ use crate::utils::{
 };
 use chrono::{DateTime, Utc};
 use log::trace;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use std::borrow::Cow;
 use std::io::{Cursor, Read, Seek, SeekFrom};
 use std::string::ToString;
@@ -248,7 +248,7 @@ impl<'a> BinXmlValue<'a> {
                     name: "AnsiString".to_owned(),
                     size: None,
                     offset: cursor.position(),
-                })
+                });
             }
             (BinXmlValueType::Int8Type, _) => BinXmlValue::Int8Type(try_read!(cursor, i8)?),
             (BinXmlValueType::UInt8Type, _) => BinXmlValue::UInt8Type(try_read!(cursor, u8)?),
@@ -274,7 +274,7 @@ impl<'a> BinXmlValue<'a> {
                     name: "SizeT".to_owned(),
                     size,
                     offset: cursor.position(),
-                })
+                });
             }
             (BinXmlValueType::FileTimeType, _) => {
                 BinXmlValue::FileTimeType(try_read!(cursor, filetime)?)
@@ -393,7 +393,7 @@ impl<'a> BinXmlValue<'a> {
                     name: format!("{value_type:?}"),
                     size,
                     offset: cursor.position(),
-                })
+                });
             }
         };
 

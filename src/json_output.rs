@@ -1,13 +1,13 @@
 use crate::err::{SerializationError, SerializationResult};
 
+use crate::ParserSettings;
 use crate::binxml::value_variant::BinXmlValue;
 use crate::model::xml::{BinXmlPI, XmlElement};
 use crate::xml_output::BinXmlOutput;
-use crate::ParserSettings;
 
 use core::borrow::BorrowMut;
 use log::trace;
-use serde_json::{json, Map, Value};
+use serde_json::{Map, Value, json};
 use std::borrow::Cow;
 
 use crate::binxml::name::BinXmlName;
@@ -400,10 +400,10 @@ impl BinXmlOutput for JsonOutput {
                         Some(Value::Array(arr)) => arr.push(value_to_json(value)),
                         current_value => {
                             return Err(SerializationError::JsonStructureError {
-                            message: format!(
-                                "expected current value to be a String or an Array, found {current_value:?}, new value is {value:?}"
-                            ),
-                        });
+                                message: format!(
+                                    "expected current value to be a String or an Array, found {current_value:?}, new value is {value:?}"
+                                ),
+                            });
                         }
                     }
                 }
@@ -480,8 +480,8 @@ mod tests {
     use crate::model::xml::{XmlAttribute, XmlElement};
     use crate::{BinXmlOutput, JsonOutput, ParserSettings};
     use pretty_assertions::assert_eq;
-    use quick_xml::events::{BytesStart, Event};
     use quick_xml::Reader;
+    use quick_xml::events::{BytesStart, Event};
     use std::borrow::Cow;
 
     fn bytes_to_string(bytes: &[u8]) -> String {

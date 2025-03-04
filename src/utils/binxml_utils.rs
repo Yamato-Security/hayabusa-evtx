@@ -5,7 +5,7 @@ use crate::err::{DeserializationError, DeserializationResult, WrappedIoError};
 
 use byteorder::{LittleEndian, ReadBytesExt};
 
-use encoding::{decode, DecoderTrap, EncodingRef};
+use encoding::{DecoderTrap, EncodingRef, decode};
 use log::trace;
 use std::char::decode_utf16;
 use std::error::Error as StdErr;

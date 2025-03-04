@@ -1,8 +1,8 @@
 use crate::binxml::tokens::read_template_definition;
 use crate::err::DeserializationResult;
 
-use crate::model::deserialized::BinXMLTemplateDefinition;
 use crate::ChunkOffset;
+use crate::model::deserialized::BinXMLTemplateDefinition;
 
 use encoding::EncodingRef;
 use hashbrown::HashMap;

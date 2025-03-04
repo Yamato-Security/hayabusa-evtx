@@ -59,7 +59,7 @@ impl<'a> XmlElementBuilder<'a> {
             Some(_) => {
                 return Err(EvtxError::FailedToCreateRecordModel(
                     "invalid state, there should not be a value",
-                ))
+                ));
             }
         }
 

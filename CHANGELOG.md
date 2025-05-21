@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.9.1 - 2025-05-21]
+
+- Bump (@yamatosecurity)
+
 ## [0.9.0 - 2025-03-04]
 
 - Updated to Rust edition 2024 (omerbenamram/evtx#250)

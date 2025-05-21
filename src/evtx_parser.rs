@@ -342,7 +342,7 @@ impl<T: ReadSeek> EvtxParser<T> {
         data.seek(SeekFrom::Start(chunk_offset as u64))
             .map_err(|e| EvtxError::FailedToParseChunk {
                 chunk_id: chunk_number,
-                source: ChunkError::FailedToSeekToChunk(e),
+                source: Box::new(ChunkError::FailedToSeekToChunk(e)),
             })?;
 
         let amount_read = data
@@ -363,7 +363,7 @@ impl<T: ReadSeek> EvtxParser<T> {
             .map(Some)
             .map_err(|e| EvtxError::FailedToParseChunk {
                 chunk_id: chunk_number,
-                source: e,
+                source: Box::new(e),
             })
     }
 
@@ -465,7 +465,7 @@ impl<T: ReadSeek> EvtxParser<T> {
                             match chunk_records_res {
                                 Err(err) => vec![Err(EvtxError::FailedToParseChunk {
                                     chunk_id: i as u64,
-                                    source: err,
+                                    source: Box::new(err),
                                 })],
                                 Ok(mut chunk_records) => {
                                     chunk_records.iter().map(f.clone()).collect()

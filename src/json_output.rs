@@ -439,7 +439,7 @@ impl BinXmlOutput for JsonOutput {
         let entity_ref = "&".to_string() + entity.as_str() + ";";
 
         let xml_event = BytesText::from_escaped(&entity_ref);
-        match xml_event.unescape() {
+        match xml_event.decode() {
             Ok(escaped) => {
                 let as_string = escaped.to_string();
 

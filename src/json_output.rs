@@ -5,14 +5,14 @@ use crate::binxml::value_variant::BinXmlValue;
 use crate::model::xml::{BinXmlPI, XmlElement};
 use crate::xml_output::BinXmlOutput;
 
-use core::borrow::BorrowMut;
-use log::trace;
-use serde_json::{Map, Value, json};
-use std::borrow::Cow;
-
 use crate::binxml::name::BinXmlName;
 use crate::err::SerializationError::JsonStructureError;
+use core::borrow::BorrowMut;
+use log::trace;
+use quick_xml::escape::unescape;
 use quick_xml::events::BytesText;
+use serde_json::{Map, Value, json};
+use std::borrow::Cow;
 
 pub struct JsonOutput {
     map: Value,
@@ -436,13 +436,13 @@ impl BinXmlOutput for JsonOutput {
         // We need to create a BytesText event to access quick-xml's unescape functionality (which is private).
         // We also terminate the entity.
         let entity_ref = "&".to_string() + entity.as_str() + ";";
-
         let xml_event = BytesText::from_escaped(&entity_ref);
         match xml_event.decode() {
             Ok(escaped) => {
                 let as_string = escaped.to_string();
-
-                self.visit_characters(Cow::Owned(BinXmlValue::StringType(as_string)))?;
+                if let Ok(s) = unescape(&as_string) {
+                    self.visit_characters(Cow::Owned(BinXmlValue::StringType(s.to_string())))?;
+                }
                 Ok(())
             }
             Err(_) => Err(JsonStructureError {

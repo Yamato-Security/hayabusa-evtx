@@ -256,7 +256,7 @@ impl EvtxDump {
                         if self.display_allocation {
                             record_display = format!("{} [{}]", record_display, r.allocation)
                         }
-                        writeln!(self.output, "{}", record_display)?;
+                        writeln!(self.output, "{record_display}")?;
                     }
                     writeln!(self.output, "{}", r.data)?;
                 }

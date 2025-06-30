@@ -178,7 +178,7 @@ pub fn create_record_model<'a>(
 
             Cow::Owned(BinXMLDeserializedTokens::Attribute(ref attr))
             | Cow::Borrowed(&BinXMLDeserializedTokens::Attribute(ref attr)) => {
-                trace!("BinXMLDeserializedTokens::Attribute(attr) - {:?}", attr);
+                trace!("BinXMLDeserializedTokens::Attribute(attr) - {attr:?}");
                 if current_element.is_none() {
                     return Err(EvtxError::FailedToCreateRecordModel(
                         "attribute - Bad parser state",
@@ -199,7 +199,7 @@ pub fn create_record_model<'a>(
                 current_element = Some(builder);
             }
             Cow::Owned(BinXMLDeserializedTokens::Value(value)) => {
-                trace!("BinXMLDeserializedTokens::Value(value) - {:?}", value);
+                trace!("BinXMLDeserializedTokens::Value(value) - {value:?}");
                 match current_element {
                     None => match value {
                         BinXmlValue::EvtXml => {
@@ -217,7 +217,7 @@ pub fn create_record_model<'a>(
                 }
             }
             Cow::Borrowed(BinXMLDeserializedTokens::Value(value)) => {
-                trace!("BinXMLDeserializedTokens::Value(value) - {:?}", value);
+                trace!("BinXMLDeserializedTokens::Value(value) - {value:?}");
                 match current_element {
                     None => match value {
                         BinXmlValue::EvtXml => {

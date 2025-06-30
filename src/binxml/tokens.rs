@@ -61,7 +61,7 @@ pub fn read_template<'a>(
         value_descriptors.push(TemplateValueDescriptor { size, value_type })
     }
 
-    trace!("{:?}", value_descriptors);
+    trace!("{value_descriptors:?}");
 
     let mut substitution_array = Vec::with_capacity(number_of_substitutions as usize);
 
@@ -80,7 +80,7 @@ pub fn read_template<'a>(
             ansi_codec,
         )?;
 
-        trace!("\t {:?}", value);
+        trace!("\t {value:?}");
         // NullType can mean deleted substitution (and data need to be skipped)
         if value == BinXmlValue::NullType {
             trace!("\t Skipping `NullType` descriptor");
@@ -171,7 +171,7 @@ pub fn read_template_definition<'a>(
 pub fn read_entity_ref(cursor: &mut Cursor<&[u8]>) -> Result<BinXmlEntityReference> {
     trace!("Offset `0x{:08x}` - EntityReference", cursor.position());
     let name = BinXmlNameRef::from_stream(cursor)?;
-    trace!("\t name: {:?}", name);
+    trace!("\t name: {name:?}");
 
     Ok(BinXmlEntityReference { name })
 }
@@ -204,7 +204,7 @@ pub fn read_processing_instruction_target(
     );
 
     let name = BinXmlNameRef::from_stream(cursor)?;
-    trace!("\tPITarget Name - {:?}", name);
+    trace!("\tPITarget Name - {name:?}");
     Ok(BinXMLProcessingInstructionTarget { name })
 }
 
@@ -215,7 +215,7 @@ pub fn read_processing_instruction_data(cursor: &mut Cursor<&[u8]>) -> Result<St
     );
 
     let data = try_read!(cursor, len_prefixed_utf_16_str, "pi_data")?.unwrap_or_default();
-    trace!("PIData - {}", data,);
+    trace!("PIData - {data}");
     Ok(data)
 }
 
@@ -267,8 +267,7 @@ pub fn read_open_start_element(
             try_read!(cursor, u16, "open_start_element_dependency_identifier")?;
 
         trace!(
-            "\t Dependency Identifier - `0x{:04x} ({})`",
-            _dependency_identifier, _dependency_identifier
+            "\t Dependency Identifier - `0x{_dependency_identifier:04x} ({_dependency_identifier})`"
         );
     }
 
@@ -294,9 +293,9 @@ pub fn read_open_start_element(
         }
     }
 
-    trace!("\t Data Size - {}", data_size);
+    trace!("\t Data Size - {data_size}");
     let name = BinXmlNameRef::from_stream(cursor)?;
-    trace!("\t Name - {:?}", name);
+    trace!("\t Name - {name:?}");
 
     let _attribute_list_data_size = if has_attributes {
         try_read!(cursor, u32, "open_start_element_attribute_list_data_size")?

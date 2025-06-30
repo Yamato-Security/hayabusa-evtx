@@ -307,7 +307,7 @@ impl<T: ReadSeek> EvtxParser<T> {
             };
         let chunk_count = chunk_data_size / EVTX_CHUNK_SIZE as u64;
 
-        debug!("EVTX Header: {:#?}", evtx_header);
+        debug!("EVTX Header: {evtx_header:#?}");
         Ok(EvtxParser {
             data: read_seek,
             header: evtx_header,
@@ -335,8 +335,7 @@ impl<T: ReadSeek> EvtxParser<T> {
         let chunk_offset = EVTX_FILE_HEADER_SIZE + chunk_number as usize * EVTX_CHUNK_SIZE;
 
         trace!(
-            "Offset `0x{:08x} ({})` - Reading chunk number `{}`",
-            chunk_offset, chunk_offset, chunk_number
+            "Offset `0x{chunk_offset:08x} ({chunk_offset})` - Reading chunk number `{chunk_number}`"
         );
 
         data.seek(SeekFrom::Start(chunk_offset as u64))

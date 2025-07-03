@@ -39,7 +39,7 @@ impl<'chunk> TemplateCache<'chunk> {
 
                 cache.insert(table_offset, definition);
 
-                trace!("Next template will be at {}", next_template_offset);
+                trace!("Next template will be at {next_template_offset}");
 
                 if next_template_offset == 0 {
                     break;

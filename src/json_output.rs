@@ -5,14 +5,14 @@ use crate::binxml::value_variant::BinXmlValue;
 use crate::model::xml::{BinXmlPI, XmlElement};
 use crate::xml_output::BinXmlOutput;
 
-use core::borrow::BorrowMut;
-use log::trace;
-use serde_json::{Map, Value, json};
-use std::borrow::Cow;
-
 use crate::binxml::name::BinXmlName;
 use crate::err::SerializationError::JsonStructureError;
+use core::borrow::BorrowMut;
+use log::trace;
+use quick_xml::escape::unescape;
 use quick_xml::events::BytesText;
+use serde_json::{Map, Value, json};
+use std::borrow::Cow;
 
 pub struct JsonOutput {
     map: Value,
@@ -215,15 +215,14 @@ impl JsonOutput {
                 }
                 })?;
                 // We do a linear probe in case XML contains duplicate keys
-                if let Some(old_attribute) =
-                    value.insert(format!("{}_attributes", name), Value::Null)
+                if let Some(old_attribute) = value.insert(format!("{name}_attributes"), Value::Null)
                 {
                     if let Some(old_value) = value.insert(name.to_string(), Value::Null) {
                         let mut free_slot = 1;
                         // If it is a concrete value, we look for another slot.
-                        while value.get(&format!("{}_{}", name, free_slot)).is_some()
+                        while value.get(&format!("{name}_{free_slot}")).is_some()
                             || value
-                                .get(&format!("{}_{}_attributes", name, free_slot))
+                                .get(&format!("{name}_{free_slot}_attributes"))
                                 .is_some()
                         {
                             // Value is an empty object - we can override it's value.
@@ -231,13 +230,13 @@ impl JsonOutput {
                         }
                         if let Some(old_value_object) = old_value.as_object() {
                             if !old_value_object.is_empty() {
-                                value.insert(format!("{}_{}", name, free_slot), old_value);
+                                value.insert(format!("{name}_{free_slot}"), old_value);
                             }
                         };
                         if let Some(old_attribute_object) = old_attribute.as_object() {
                             if !old_attribute_object.is_empty() {
                                 value.insert(
-                                    format!("{}_{}_attributes", name, free_slot),
+                                    format!("{name}_{free_slot}_attributes"),
                                     old_attribute,
                                 );
                             };
@@ -267,11 +266,11 @@ impl JsonOutput {
                         if !map.is_empty() {
                             let mut free_slot = 1;
                             // If it is a concrete value, we look for another slot.
-                            while container.get(&format!("{}_{}", name, free_slot)).is_some() {
+                            while container.get(&format!("{name}_{free_slot}")).is_some() {
                                 // Value is an empty object - we can override it's value.
                                 free_slot += 1
                             }
-                            container.insert(format!("{}_{}", name, free_slot), old_value);
+                            container.insert(format!("{name}_{free_slot}"), old_value);
                         }
                     }
                 };
@@ -334,7 +333,7 @@ impl BinXmlOutput for JsonOutput {
 
     fn visit_close_element(&mut self, _element: &XmlElement) -> SerializationResult<()> {
         let p = self.stack.pop();
-        trace!("visit_close_element: {:?}", p);
+        trace!("visit_close_element: {p:?}");
         Ok(())
     }
 
@@ -437,13 +436,13 @@ impl BinXmlOutput for JsonOutput {
         // We need to create a BytesText event to access quick-xml's unescape functionality (which is private).
         // We also terminate the entity.
         let entity_ref = "&".to_string() + entity.as_str() + ";";
-
         let xml_event = BytesText::from_escaped(&entity_ref);
-        match xml_event.unescape() {
+        match xml_event.decode() {
             Ok(escaped) => {
                 let as_string = escaped.to_string();
-
-                self.visit_characters(Cow::Owned(BinXmlValue::StringType(as_string)))?;
+                if let Ok(s) = unescape(&as_string) {
+                    self.visit_characters(Cow::Owned(BinXmlValue::StringType(s.to_string())))?;
+                }
                 Ok(())
             }
             Err(_) => Err(JsonStructureError {
@@ -557,6 +556,7 @@ mod tests {
                         output.visit_end_of_stream().expect("End of stream");
                         break;
                     }
+                    Event::GeneralRef(_) => unimplemented!(),
                 },
                 Err(e) => panic!("Error at position {}: {:?}", reader.buffer_position(), e),
             }

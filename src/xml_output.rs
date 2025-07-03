@@ -77,7 +77,7 @@ impl<W: Write> BinXmlOutput for XmlOutput<W> {
     }
 
     fn visit_open_start_element(&mut self, element: &XmlElement) -> SerializationResult<()> {
-        trace!("visit_open_start_element: {:?}", element);
+        trace!("visit_open_start_element: {element:?}");
 
         let mut event_builder = BytesStart::new(element.name.as_ref().as_str());
 

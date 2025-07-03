@@ -107,10 +107,7 @@ impl EvtxChunkData {
             0
         };
 
-        debug!(
-            "Expected checksum: {:?}, found: {:?}",
-            expected_checksum, computed_checksum
-        );
+        debug!("Expected checksum: {expected_checksum:?}, found: {computed_checksum:?}");
 
         computed_checksum == expected_checksum
     }
@@ -141,10 +138,7 @@ impl EvtxChunkData {
             0
         };
 
-        debug!(
-            "Expected checksum: {:?}, found: {:?}",
-            expected_checksum, computed_checksum
-        );
+        debug!("Expected checksum: {expected_checksum:?}, found: {computed_checksum:?}");
 
         computed_checksum == expected_checksum
     }
@@ -296,11 +290,11 @@ impl<'a> Iterator for IterChunkRecords<'a> {
         };
 
         info!("Record id - {}", record_header.event_record_id);
-        debug!("Record header - {:?}", record_header);
+        debug!("Record header - {record_header:?}");
 
         let binxml_data_size = record_header.record_data_size();
 
-        trace!("Need to deserialize {} bytes of binxml", binxml_data_size);
+        trace!("Need to deserialize {binxml_data_size} bytes of binxml");
 
         // `EvtxChunk` only owns `template_table`, which we want to loan to the Deserializer.
         // `data` and `string_cache` are both references and are `Copy`ed when passed to init.

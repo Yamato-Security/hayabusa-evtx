@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.9.2 - 2025-06-03]
+
+- Fixes `quick-xml` build errors. (#80) (@fukusket)
+
 ## [0.9.1 - 2025-05-21]
 
 - Bump (@yamatosecurity)

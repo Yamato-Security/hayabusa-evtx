@@ -160,10 +160,10 @@ impl JsonOutput {
                 return Ok(());
             }
 
-            if let Some(map) = old_value.as_object() {
-                if map.is_empty() {
-                    return Ok(());
-                }
+            if let Some(map) = old_value.as_object()
+                && map.is_empty()
+            {
+                return Ok(());
             }
 
             let mut free_slot = 1;
@@ -216,31 +216,27 @@ impl JsonOutput {
                 })?;
                 // We do a linear probe in case XML contains duplicate keys
                 if let Some(old_attribute) = value.insert(format!("{name}_attributes"), Value::Null)
+                    && let Some(old_value) = value.insert(name.to_string(), Value::Null)
                 {
-                    if let Some(old_value) = value.insert(name.to_string(), Value::Null) {
-                        let mut free_slot = 1;
-                        // If it is a concrete value, we look for another slot.
-                        while value.get(&format!("{name}_{free_slot}")).is_some()
-                            || value
-                                .get(&format!("{name}_{free_slot}_attributes"))
-                                .is_some()
-                        {
-                            // Value is an empty object - we can override it's value.
-                            free_slot += 1
-                        }
-                        if let Some(old_value_object) = old_value.as_object() {
-                            if !old_value_object.is_empty() {
-                                value.insert(format!("{name}_{free_slot}"), old_value);
-                            }
-                        };
-                        if let Some(old_attribute_object) = old_attribute.as_object() {
-                            if !old_attribute_object.is_empty() {
-                                value.insert(
-                                    format!("{name}_{free_slot}_attributes"),
-                                    old_attribute,
-                                );
-                            };
-                        };
+                    let mut free_slot = 1;
+                    // If it is a concrete value, we look for another slot.
+                    while value.get(&format!("{name}_{free_slot}")).is_some()
+                        || value
+                            .get(&format!("{name}_{free_slot}_attributes"))
+                            .is_some()
+                    {
+                        // Value is an empty object - we can override it's value.
+                        free_slot += 1
+                    }
+                    if let Some(old_value_object) = old_value.as_object()
+                        && !old_value_object.is_empty()
+                    {
+                        value.insert(format!("{name}_{free_slot}"), old_value);
+                    };
+                    if let Some(old_attribute_object) = old_attribute.as_object()
+                        && !old_attribute_object.is_empty()
+                    {
+                        value.insert(format!("{name}_{free_slot}_attributes"), old_attribute);
                     };
                 };
 
@@ -261,18 +257,17 @@ impl JsonOutput {
                     }
                 })?;
                 // We do a linear probe in case XML contains duplicate keys
-                if let Some(old_value) = container.insert(name.to_string(), Value::Null) {
-                    if let Some(map) = old_value.as_object() {
-                        if !map.is_empty() {
-                            let mut free_slot = 1;
-                            // If it is a concrete value, we look for another slot.
-                            while container.get(&format!("{name}_{free_slot}")).is_some() {
-                                // Value is an empty object - we can override it's value.
-                                free_slot += 1
-                            }
-                            container.insert(format!("{name}_{free_slot}"), old_value);
-                        }
+                if let Some(old_value) = container.insert(name.to_string(), Value::Null)
+                    && let Some(map) = old_value.as_object()
+                    && !map.is_empty()
+                {
+                    let mut free_slot = 1;
+                    // If it is a concrete value, we look for another slot.
+                    while container.get(&format!("{name}_{free_slot}")).is_some() {
+                        // Value is an empty object - we can override it's value.
+                        free_slot += 1
                     }
+                    container.insert(format!("{name}_{free_slot}"), old_value);
                 };
 
                 let mut value = Map::new();

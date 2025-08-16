@@ -84,7 +84,7 @@ impl EvtxChunkData {
     }
 
     /// Require that the settings live at least as long as &self.
-    pub fn parse(&mut self, settings: Arc<ParserSettings>) -> EvtxChunkResult<EvtxChunk> {
+    pub fn parse(&mut self, settings: Arc<ParserSettings>) -> EvtxChunkResult<EvtxChunk<'_>> {
         EvtxChunk::new(&self.data, &self.header, Arc::clone(&settings))
     }
 
@@ -191,7 +191,7 @@ impl<'chunk> EvtxChunk<'chunk> {
     /// Return an iterator of records from the chunk.
     /// See `IterChunkRecords` for a more detailed explanation regarding the lifetime scopes of the
     /// resulting records.
-    pub fn iter(&mut self) -> IterChunkRecords {
+    pub fn iter(&mut self) -> IterChunkRecords<'_> {
         let mut offset_array: Option<VecDeque<usize>> = None;
         // Currently we only support recovering records in empty pages, but, it could be
         // possible to recover records from chunk slack in the future

@@ -404,7 +404,7 @@ impl<T: ReadSeek> EvtxParser<T> {
     /// Return an iterator over all the chunks.
     /// Each chunk supports iterating over it's records in their un-serialized state
     /// (before they are converted to XML or JSON).
-    pub fn chunks(&mut self) -> IterChunks<T> {
+    pub fn chunks(&mut self) -> IterChunks<'_, T> {
         IterChunks {
             parser: self,
             current_chunk_number: 0,

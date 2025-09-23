@@ -46,7 +46,7 @@ pub struct WrappedIoError {
 
 impl WrappedIoError {
     pub fn capture_hexdump<S: ReadSeek>(
-        error: Box<(dyn std::error::Error + 'static + Send + Sync)>,
+        error: Box<dyn std::error::Error + 'static + Send + Sync>,
         stream: &mut S,
     ) -> WrappedIoError {
         let offset = stream.tell().unwrap_or_else(|_| {

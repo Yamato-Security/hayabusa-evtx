@@ -292,7 +292,15 @@ impl<'a> Iterator for IterChunkRecords<'a> {
         info!("Record id - {}", record_header.event_record_id);
         debug!("Record header - {record_header:?}");
 
-        let binxml_data_size = record_header.record_data_size();
+        let binxml_data_size = match record_header.record_data_size() {
+            Ok(size) => size,
+            Err(err) => {
+                //The evtx record is corrupted, skip the rest of the chunk
+                //It could be interesting to carve the rest of the chunk to find the next EVTX record header magic `2a2a0000`
+                self.exhausted = true;
+                return Some(Err(err));
+            }
+        };
 
         trace!("Need to deserialize {binxml_data_size} bytes of binxml");
 

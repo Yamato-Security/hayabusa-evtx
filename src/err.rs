@@ -279,6 +279,11 @@ pub enum EvtxError {
     // TODO: should we keep an `Unimplemented` variant at public API?
     #[error("Unimplemented: {name}")]
     Unimplemented { name: String },
+
+    #[error(
+        "Invalid EVTX record data size, should be equals or greater than {expected}, found `{length}`"
+    )]
+    InvalidDataSize { length: u32, expected: u32 },
 }
 
 impl EvtxError {

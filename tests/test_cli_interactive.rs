@@ -10,7 +10,7 @@ mod tests {}
 mod tests {
     use super::fixtures::*;
 
-    use assert_cmd::cargo::cargo_bin;
+    use assert_cmd::cargo_bin;
     use rexpect::spawn;
     use std::fs::File;
     use std::io::{Read, Write};
@@ -30,7 +30,7 @@ mod tests {
 
         let cmd_string = format!(
             "{bin} -f {output_file} {sample}",
-            bin = cargo_bin("evtx_dump").display(),
+            bin = cargo_bin!("evtx_dump").display(),
             output_file = f.to_string_lossy(),
             sample = sample.to_str().unwrap()
         );
@@ -65,7 +65,7 @@ mod tests {
 
         let cmd_string = format!(
             "{bin} -f {output_file} {sample}",
-            bin = cargo_bin("evtx_dump").display(),
+            bin = cargo_bin!("evtx_dump").display(),
             output_file = f.to_string_lossy(),
             sample = sample.to_str().unwrap()
         );

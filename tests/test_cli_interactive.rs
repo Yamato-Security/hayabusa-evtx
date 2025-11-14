@@ -10,10 +10,10 @@ mod tests {}
 mod tests {
     use super::fixtures::*;
 
+    use assert_cmd::cargo_bin;
     use rexpect::spawn;
     use std::fs::File;
     use std::io::{Read, Write};
-    use assert_cmd::cargo_bin;
     use tempfile::tempdir;
 
     // It should behave the same on windows, but interactive testing relies on unix pty internals.

@@ -203,11 +203,9 @@ impl<'a> IterTokens<'a> {
                 trace!("Finished reading - EOF reached");
                 return None;
             }
-            (Some(sz), _) => {
-                if self.data_read_so_far >= sz {
-                    trace!("Finished reading - end of data");
-                    return None;
-                }
+            (Some(sz), _) if self.data_read_so_far >= sz => {
+                trace!("Finished reading - end of data");
+                return None;
             }
             _ => {}
         }

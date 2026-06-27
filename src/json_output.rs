@@ -342,9 +342,18 @@ impl BinXmlOutput for JsonOutput {
                 .find(|a| a.name.as_ref().as_str() == "Name")
         {
             let key = name_attr.value.as_ref().as_cow_str().into_owned();
-            if let Some(parent) = self.get_current_parent().as_object_mut()
-                && parent.get(key.as_str()) == Some(&Value::Null)
-            {
+            // A non-object parent here is a structural bug, not a benign skip:
+            // surface it the same way `insert_node_without_attributes` does
+            // rather than silently emitting wrong JSON.
+            let parent = self.get_current_parent().as_object_mut().ok_or_else(|| {
+                SerializationError::JsonStructureError {
+                    message:
+                        "This is a bug - expected parent container to exist, and to be an object type.\
+                         Check that the referencing parent is not `Value::null`"
+                            .to_string(),
+                }
+            })?;
+            if parent.get(key.as_str()) == Some(&Value::Null) {
                 parent.insert(key, Value::String(String::new()));
             }
         }

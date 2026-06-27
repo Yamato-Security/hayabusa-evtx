@@ -326,7 +326,29 @@ impl BinXmlOutput for JsonOutput {
         self.insert_node_with_attributes(element, element_name)
     }
 
-    fn visit_close_element(&mut self, _element: &XmlElement) -> SerializationResult<()> {
+    fn visit_close_element(&mut self, element: &XmlElement) -> SerializationResult<()> {
+        // A named `<Data Name="X"></Data>` that closes with no content must
+        // render as an empty string (`"X": ""`), not `null`. `null` is the
+        // placeholder for an *absent* field, and consumers distinguish a
+        // present-but-empty value from an absent one (e.g. Sigma `field: null`
+        // matching, which should NOT match a present-but-empty field). Emitting
+        // `null` for a present-empty element makes it look absent and changes
+        // detection results. Done before the stack pop, while this Data element
+        // is still the current frame so `get_current_parent()` is its container.
+        if element.name.as_str() == "Data"
+            && let Some(name_attr) = element
+                .attributes
+                .iter()
+                .find(|a| a.name.as_ref().as_str() == "Name")
+        {
+            let key = name_attr.value.as_ref().as_cow_str().into_owned();
+            if let Some(parent) = self.get_current_parent().as_object_mut()
+                && parent.get(key.as_str()) == Some(&Value::Null)
+            {
+                parent.insert(key, Value::String(String::new()));
+            }
+        }
+
         let p = self.stack.pop();
         trace!("visit_close_element: {p:?}");
         Ok(())

@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.9.8 - 2026-06-27]
+
+- Bug fix: Render a present-but-empty named `<Data Name="X"></Data>` element as `""` instead of `null`, so consumers that distinguish an absent field from a present-but-empty one (e.g. Sigma `field: null` matching) behave correctly. (#90)
+
 ## [0.9.7 - 2026-04-29]
 
 - Bump

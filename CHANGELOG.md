@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.9.9 - 2026-07-04]
+
+- Bump all dependencies to their latest versions (notably `thiserror` 1→2 and `criterion` 0.5→0.8).
+
 ## [0.9.8 - 2026-06-27]
 
 - Bug fix: Render a present-but-empty named `<Data Name="X"></Data>` element as `""` instead of `null`, so consumers that distinguish an absent field from a present-but-empty one (e.g. Sigma `field: null` matching) behave correctly. (#90)

@@ -265,11 +265,10 @@ impl<'a> Iterator for IterChunkRecords<'a> {
 
         if let Some(offset_array) = self.offset_array.as_mut() {
             // If we are using an offset_array, we want to set the offset_from_chunk_start with those values
-            if let Some(value) = offset_array.pop_back() {
+            {
+                let value = offset_array.pop_back()?;
                 self.offset_from_chunk_start = value as u64;
                 allocation = self.recovery_type.clone();
-            } else {
-                return None;
             }
         } else if self.exhausted
             || self.offset_from_chunk_start >= u64::from(self.chunk.header.free_space_offset)

@@ -106,7 +106,7 @@ impl JsonOutput {
     /// avoids the duplicate-key mangling that dropped values and collapsed the `Name`
     /// attributes into an array under `--separate-json-attributes` (issue #1520).
     fn insert_data_node(&mut self, element: &XmlElement) -> SerializationResult<()> {
-        trace!("inserting data node {:?}", &element);
+        trace!("inserting data node {:?}", element);
         match element
             .attributes
             .iter()
@@ -375,7 +375,7 @@ impl BinXmlOutput for JsonOutput {
     }
 
     fn visit_characters(&mut self, value: Cow<BinXmlValue>) -> SerializationResult<()> {
-        trace!("visit_chars {:?}", &self.stack);
+        trace!("visit_chars {:?}", self.stack);
         // We need to clone this bool since the next statement will borrow self as mutable.
         let separate_json_attributes = self.separate_json_attributes;
         let current_value = self.get_or_create_current_path();

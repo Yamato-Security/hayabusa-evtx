@@ -177,7 +177,7 @@ impl EvtxDump {
         }
 
         let mut parser = EvtxParser::from_path(&self.input)
-            .with_context(|| format!("Failed to open evtx file at: {}", &self.input.display()))
+            .with_context(|| format!("Failed to open evtx file at: {}", self.input.display()))
             .map(|parser| parser.with_configuration(self.parser_settings.clone()))?;
 
         match self.output_format {

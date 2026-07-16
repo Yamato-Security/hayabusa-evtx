@@ -99,8 +99,14 @@ impl JsonOutput {
     }
 
     /// Like a regular node, but uses it's "Name" attribute.
+    ///
+    /// Handles both `<Data Name="X">Y</Data>` and `<ComplexData Name="X">Y</ComplexData>`
+    /// (e.g. Kernel-Processor-Power EID 26), which both key their value by the `Name`
+    /// attribute. Routing `ComplexData` here instead of the generic attributed-node path
+    /// avoids the duplicate-key mangling that dropped values and collapsed the `Name`
+    /// attributes into an array under `--separate-json-attributes` (issue #1520).
     fn insert_data_node(&mut self, element: &XmlElement) -> SerializationResult<()> {
-        trace!("inserting data node {:?}", &element);
+        trace!("inserting data node {:?}", element);
         match element
             .attributes
             .iter()
@@ -111,9 +117,10 @@ impl JsonOutput {
 
                 self.insert_node_without_attributes(element, &data_key)
             }
-            // Ignore this node
+            // No `Name` attribute: keep the element's own name so a value-less
+            // `<Data>`/`<ComplexData>` is still represented rather than dropped.
             None => {
-                self.stack.push("Data".to_owned());
+                self.stack.push(element.name.as_str().to_owned());
                 Ok(())
             }
         }
@@ -314,7 +321,8 @@ impl BinXmlOutput for JsonOutput {
         trace!("visit_open_start_element: {:?}", element.name);
         let element_name = element.name.as_str();
 
-        if element_name == "Data" {
+        // `Data` and `ComplexData` are both keyed by their `Name` attribute (#1520).
+        if element_name == "Data" || element_name == "ComplexData" {
             return self.insert_data_node(element);
         }
 
@@ -335,7 +343,10 @@ impl BinXmlOutput for JsonOutput {
         // `null` for a present-empty element makes it look absent and changes
         // detection results. Done before the stack pop, while this Data element
         // is still the current frame so `get_current_parent()` is its container.
-        if element.name.as_str() == "Data"
+        // `ComplexData` is keyed by `Name` just like `Data` (#1520), so an empty
+        // `<ComplexData Name="X"/>` must render as `"X": ""` the same way.
+        let elem_name = element.name.as_str();
+        if (elem_name == "Data" || elem_name == "ComplexData")
             && let Some(name_attr) = element
                 .attributes
                 .iter()
@@ -364,7 +375,7 @@ impl BinXmlOutput for JsonOutput {
     }
 
     fn visit_characters(&mut self, value: Cow<BinXmlValue>) -> SerializationResult<()> {
-        trace!("visit_chars {:?}", &self.stack);
+        trace!("visit_chars {:?}", self.stack);
         // We need to clone this bool since the next statement will borrow self as mutable.
         let separate_json_attributes = self.separate_json_attributes;
         let current_value = self.get_or_create_current_path();
@@ -620,5 +631,37 @@ mod tests {
         println!("json: {json}");
 
         assert_eq!(xml_to_json(s1, &settings), s2)
+    }
+
+    /// #1520: `<ComplexData Name="X">Y</ComplexData>` must be keyed by its `Name`
+    /// attribute like `<Data>`, not emitted as a generic attributed node (which, under
+    /// `--separate-json-attributes`, collapsed duplicate `Name`s into an array and
+    /// dropped the values).
+    #[test]
+    fn test_complexdata_keyed_by_name() {
+        let s1 = r#"
+<EventData>
+    <Data Name="Group">0</Data>
+    <ComplexData Name="IdleState">01</ComplexData>
+    <ComplexData Name="PerfState">02</ComplexData>
+</EventData>
+"#
+        .trim();
+        let expected = r#"
+{
+  "EventData": {
+    "Group": "0",
+    "IdleState": "01",
+    "PerfState": "02"
+  }
+}
+"#
+        .trim();
+
+        let settings = ParserSettings::new()
+            .num_threads(1)
+            .separate_json_attributes(true);
+
+        assert_eq!(xml_to_json(s1, &settings), expected);
     }
 }

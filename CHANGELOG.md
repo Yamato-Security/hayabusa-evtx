@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.9.11 - 2026-07-29]
+
+- Bump all dependencies to their latest versions.
+
 ## [0.9.10 - 2026-07-16]
 
 - Bug fix: Key `<ComplexData Name="X">Y</ComplexData>` elements (e.g. Kernel-Processor-Power EID 26) by their `Name` attribute, exactly like `<Data Name="X">`. They were previously serialized as generic attributed nodes, which under `--separate-json-attributes` collapsed duplicate `Name`s into an array and dropped the element values entirely. (#1520)

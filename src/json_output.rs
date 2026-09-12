@@ -6,11 +6,9 @@ use crate::model::xml::{BinXmlPI, XmlElement};
 use crate::xml_output::BinXmlOutput;
 
 use crate::binxml::name::BinXmlName;
-use crate::err::SerializationError::JsonStructureError;
 use core::borrow::BorrowMut;
 use log::trace;
 use quick_xml::escape::unescape;
-use quick_xml::events::BytesText;
 use serde_json::{Map, Value, json};
 use std::borrow::Cow;
 
@@ -470,22 +468,12 @@ impl BinXmlOutput for JsonOutput {
     }
 
     fn visit_entity_reference(&mut self, entity: &BinXmlName) -> Result<(), SerializationError> {
-        // We need to create a BytesText event to access quick-xml's unescape functionality (which is private).
-        // We also terminate the entity.
+        // Entity names are already UTF-8; terminate and unescape them directly.
         let entity_ref = "&".to_string() + entity.as_str() + ";";
-        let xml_event = BytesText::from_escaped(&entity_ref);
-        match xml_event.decode() {
-            Ok(escaped) => {
-                let as_string = escaped.to_string();
-                if let Ok(s) = unescape(&as_string) {
-                    self.visit_characters(Cow::Owned(BinXmlValue::StringType(s.to_string())))?;
-                }
-                Ok(())
-            }
-            Err(_) => Err(JsonStructureError {
-                message: format!("Unterminated XML Entity {entity_ref}"),
-            }),
+        if let Ok(value) = unescape(&entity_ref) {
+            self.visit_characters(Cow::Owned(BinXmlValue::StringType(value.into_owned())))?;
         }
+        Ok(())
     }
 
     fn visit_character_reference(
@@ -520,10 +508,6 @@ mod tests {
     use quick_xml::events::{BytesStart, Event};
     use std::borrow::Cow;
 
-    fn bytes_to_string(bytes: &[u8]) -> String {
-        String::from_utf8(bytes.to_vec()).expect("UTF8 Input")
-    }
-
     fn dummy_event() -> XmlElement<'static> {
         XmlElement {
             name: Cow::Owned(BinXmlName::from_str("Dummy")),
@@ -537,16 +521,14 @@ mod tests {
         for attr in event.attributes() {
             let attr = attr.expect("Failed to read attribute.");
             attrs.push(XmlAttribute {
-                name: Cow::Owned(BinXmlName::from_string(bytes_to_string(attr.key.as_ref()))),
+                name: Cow::Owned(BinXmlName::from_string(attr.key.as_ref().to_owned())),
                 // We have to compromise here and assume all values are strings.
-                value: Cow::Owned(BinXmlValue::StringType(bytes_to_string(&attr.value))),
+                value: Cow::Owned(BinXmlValue::StringType(attr.value.into_owned())),
             });
         }
 
         XmlElement {
-            name: Cow::Owned(BinXmlName::from_string(bytes_to_string(
-                event.name().as_ref(),
-            ))),
+            name: Cow::Owned(BinXmlName::from_string(event.name().as_ref().to_owned())),
             attributes: attrs,
         }
     }
@@ -580,9 +562,9 @@ mod tests {
                             .expect("Empty Close");
                     }
                     Event::Text(text) => output
-                        .visit_characters(Cow::Owned(BinXmlValue::StringType(bytes_to_string(
-                            text.as_ref(),
-                        ))))
+                        .visit_characters(Cow::Owned(BinXmlValue::StringType(
+                            text.into_inner().into_owned(),
+                        )))
                         .expect("Text element"),
                     Event::Comment(_) => {}
                     Event::CData(_) => unimplemented!(),

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+
+- Bound template substitution reservations by the available input, prevent UTF-16 name length overflow in inline and cached names, and reject truncated inline names before advancing the cursor. (#95)
+
 ## [0.9.12 - 2026-09-12]
 
 - Update crate dependencies to their latest stable versions, including `quick-xml` 0.42 (requires Rust 1.86 or newer), and adapt JSON serialization to its UTF-8 string API. (@YamatoSecurity)

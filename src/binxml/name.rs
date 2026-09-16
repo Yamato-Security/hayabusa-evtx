@@ -7,7 +7,7 @@ use crate::utils::read_len_prefixed_utf16_string;
 
 use std::{
     fmt::Formatter,
-    io::{Cursor, Seek, SeekFrom},
+    io::{self, Cursor, Seek, SeekFrom},
 };
 
 use quick_xml::events::{BytesEnd, BytesStart};
@@ -67,13 +67,20 @@ impl BinXmlNameRef {
             let len = cursor.read_u16::<LittleEndian>()?;
 
             let nul_terminator_len = 4;
-            let data_size = BinXmlNameLink::data_size() + u32::from(len * 2) + nul_terminator_len;
+            let data_size = BinXmlNameLink::data_size() + u32::from(len) * 2 + nul_terminator_len;
+            let end_position = position_before_string + u64::from(data_size);
 
-            try_seek!(
-                cursor,
-                position_before_string + u64::from(data_size),
-                "Skip string"
-            )?;
+            // Cursor::seek permits positions past the buffer, so check the complete
+            // name (including its terminator) before skipping it.
+            if end_position > cursor.get_ref().len() as u64 {
+                return Err(io::Error::new(
+                    io::ErrorKind::UnexpectedEof,
+                    "inline BinXML name exceeds the input buffer",
+                )
+                .into());
+            }
+
+            try_seek!(cursor, end_position, "Skip string")?;
         }
 
         Ok(BinXmlNameRef {
@@ -115,5 +122,84 @@ impl<'a> From<&'a BinXmlName> for quick_xml::events::BytesStart<'a> {
 impl<'a> From<&'a BinXmlName> for quick_xml::events::BytesEnd<'a> {
     fn from(name: &'a BinXmlName) -> Self {
         BytesEnd::new(name.as_str())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::err::DeserializationError;
+    use std::io::ErrorKind;
+
+    fn name_data(len: u16) -> Vec<u8> {
+        let mut data = len.to_le_bytes().to_vec();
+        for _ in 0..len {
+            data.extend_from_slice(&[b'A', 0]);
+        }
+        data.extend_from_slice(&[0, 0]);
+        data
+    }
+
+    fn inline_name_data(len: u16) -> Vec<u8> {
+        let mut data = 4_u32.to_le_bytes().to_vec();
+        // Next-string offset and name hash.
+        data.extend_from_slice(&[0; 6]);
+        data.extend_from_slice(&name_data(len));
+        data
+    }
+
+    #[test]
+    fn test_inline_name_length_boundaries() {
+        for len in [0, 1, 32767, 32768, u16::MAX] {
+            let data = inline_name_data(len);
+            let mut cursor = Cursor::new(data.as_slice());
+            let name_ref = BinXmlNameRef::from_stream(&mut cursor).unwrap();
+            assert_eq!(name_ref.offset, 4);
+            assert_eq!(cursor.position(), data.len() as u64, "length {len}");
+        }
+    }
+
+    #[test]
+    fn test_truncated_inline_name_returns_error() {
+        for len in [0, 1, 32767, 32768, u16::MAX] {
+            let data = inline_name_data(len);
+            // A missing terminator byte must not be skipped past the input either.
+            for available in [12, data.len() - 1] {
+                let mut cursor = Cursor::new(&data[..available]);
+                let error = BinXmlNameRef::from_stream(&mut cursor).unwrap_err();
+                assert!(matches!(
+                    error,
+                    DeserializationError::RemoveMe(ref io) if io.kind() == ErrorKind::UnexpectedEof
+                ));
+                assert_eq!(cursor.position(), 12);
+            }
+        }
+    }
+
+    #[test]
+    fn test_out_of_line_name_does_not_skip_input() {
+        let data = 0_u32.to_le_bytes();
+        let mut cursor = Cursor::new(data.as_slice());
+        let name_ref = BinXmlNameRef::from_stream(&mut cursor).unwrap();
+        assert_eq!(name_ref.offset, 0);
+        assert_eq!(cursor.position(), 4);
+    }
+
+    #[test]
+    fn test_cached_name_length_boundaries() {
+        for len in [0, 1, 32767, 32768, u16::MAX] {
+            let data = name_data(len);
+            let mut cursor = Cursor::new(data.as_slice());
+            let name = BinXmlName::from_stream(&mut cursor).unwrap();
+            assert_eq!(name.as_str(), "A".repeat(usize::from(len)));
+            assert_eq!(cursor.position(), data.len() as u64, "length {len}");
+        }
+    }
+
+    #[test]
+    fn test_truncated_large_cached_name_returns_error() {
+        let data = [0, 0x80, 0, 0]; // Length 32768, but only one UTF-16 code unit.
+        let mut cursor = Cursor::new(data.as_slice());
+        assert!(BinXmlName::from_stream(&mut cursor).is_err());
     }
 }

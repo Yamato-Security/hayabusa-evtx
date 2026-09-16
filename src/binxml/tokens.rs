@@ -42,7 +42,11 @@ pub fn read_template<'a>(
 
     let number_of_substitutions = try_read!(cursor, u32)?;
 
-    let mut value_descriptors = Vec::with_capacity(number_of_substitutions as usize);
+    // Each descriptor needs four input bytes. An untrusted count must not reserve
+    // more than the remaining input can hold; truncated descriptors still fail below.
+    let remaining_bytes = (cursor.get_ref().len() as u64).saturating_sub(cursor.position());
+    let descriptor_capacity = u64::from(number_of_substitutions).min(remaining_bytes / 4) as usize;
+    let mut value_descriptors = Vec::with_capacity(descriptor_capacity);
 
     for _ in 0..number_of_substitutions {
         let size = try_read!(cursor, u16)?;
@@ -63,7 +67,7 @@ pub fn read_template<'a>(
 
     trace!("{value_descriptors:?}");
 
-    let mut substitution_array = Vec::with_capacity(number_of_substitutions as usize);
+    let mut substitution_array = Vec::with_capacity(value_descriptors.len());
 
     for descriptor in value_descriptors {
         let position_before_reading_value = cursor.position();
@@ -304,4 +308,78 @@ pub fn read_open_start_element(
     };
 
     Ok(BinXMLOpenStartElement { data_size, name })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use encoding::all::WINDOWS_1252;
+
+    fn template_data(substitution_count: u32) -> Vec<u8> {
+        // Flags, template ID, and an out-of-line template offset.
+        let mut data = vec![0; 9];
+        data.extend_from_slice(&substitution_count.to_le_bytes());
+        data
+    }
+
+    #[test]
+    fn test_oversized_substitution_count_returns_error() {
+        let data = template_data(u32::MAX);
+        let mut cursor = Cursor::new(data.as_slice());
+        let error = read_template(&mut cursor, None, WINDOWS_1252).unwrap_err();
+        assert!(matches!(
+            error,
+            DeserializationError::FailedToReadToken { .. }
+        ));
+    }
+
+    #[test]
+    fn test_truncated_substitution_descriptors() {
+        // Two descriptors need eight bytes, including each descriptor's reserved byte.
+        for descriptor_bytes in 0..8 {
+            let mut data = template_data(2);
+            data.resize(data.len() + descriptor_bytes, 0);
+            let mut cursor = Cursor::new(data.as_slice());
+            let error = read_template(&mut cursor, None, WINDOWS_1252).unwrap_err();
+            assert!(matches!(
+                error,
+                DeserializationError::FailedToReadToken { .. }
+            ));
+        }
+    }
+
+    #[test]
+    fn test_substitution_counts_with_sufficient_input() {
+        // Large counts are valid when the descriptors fit; there is no arbitrary count limit.
+        for count in [0, 1, 4097] {
+            let mut data = template_data(count);
+            data.resize(data.len() + count as usize * 4, 0);
+            let mut cursor = Cursor::new(data.as_slice());
+            let template = read_template(&mut cursor, None, WINDOWS_1252).unwrap();
+            assert_eq!(template.substitution_array.len(), count as usize);
+            assert!(
+                template.substitution_array.iter().all(|value| {
+                    *value == BinXMLDeserializedTokens::Value(BinXmlValue::NullType)
+                })
+            );
+            assert_eq!(cursor.position(), data.len() as u64);
+        }
+    }
+
+    #[test]
+    fn test_substitution_values_follow_descriptors() {
+        let mut data = template_data(2);
+        // Two UInt8 descriptors followed by their values.
+        data.extend_from_slice(&[1, 0, 4, 0, 1, 0, 4, 0, 42, 99]);
+        let mut cursor = Cursor::new(data.as_slice());
+        let template = read_template(&mut cursor, None, WINDOWS_1252).unwrap();
+        assert_eq!(
+            template.substitution_array,
+            vec![
+                BinXMLDeserializedTokens::Value(BinXmlValue::UInt8Type(42)),
+                BinXMLDeserializedTokens::Value(BinXmlValue::UInt8Type(99)),
+            ]
+        );
+        assert_eq!(cursor.position(), data.len() as u64);
+    }
 }

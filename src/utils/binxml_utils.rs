@@ -22,7 +22,7 @@ pub fn read_len_prefixed_utf16_string<T: ReadSeek>(
     is_null_terminated: bool,
 ) -> Result<Option<String>, FailedToReadString> {
     let expected_number_of_characters = stream.read_u16::<LittleEndian>()?;
-    let needed_bytes = u64::from(expected_number_of_characters * 2);
+    let needed_bytes = u64::from(expected_number_of_characters) * 2;
 
     trace!(
         "Offset `0x{offset:08x} ({offset})` reading a{nul}string of len {len}",

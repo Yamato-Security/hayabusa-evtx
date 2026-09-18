@@ -147,6 +147,34 @@ fn test_dirty_sample_binxml_with_incomplete_template() {
 }
 
 #[test]
+fn test_oversized_substitution_count_preserves_later_records() {
+    let data = include_bytes!("../samples/Microsoft-Windows-LanguagePackSetup%4Operational.evtx");
+    let mut malformed = data.to_vec();
+    // The first record's template instance declares 18 substitutions at this offset.
+    assert_eq!(&malformed[5844..5848], &18_u32.to_le_bytes());
+    malformed[5844..5848].copy_from_slice(&u32::MAX.to_le_bytes());
+
+    let mut original_parser = EvtxParser::from_buffer(data.to_vec()).unwrap();
+    let original_records: Vec<_> = original_parser.records_json().collect();
+    let mut malformed_parser = EvtxParser::from_buffer(malformed).unwrap();
+    let malformed_records: Vec<_> = malformed_parser.records_json().collect();
+
+    assert_eq!(original_records.len(), malformed_records.len());
+    assert!(original_records[0].is_ok());
+    assert!(malformed_records[0].is_err());
+    for (original, malformed) in original_records.iter().zip(&malformed_records).skip(1) {
+        match (original, malformed) {
+            (Ok(original), Ok(malformed)) => {
+                assert_eq!(original.event_record_id, malformed.event_record_id);
+                assert_eq!(original.data, malformed.data);
+            }
+            (Err(_), Err(_)) => {}
+            _ => panic!("changing one substitution count affected a later record"),
+        }
+    }
+}
+
+#[test]
 fn test_sample_with_multiple_xml_fragments() {
     test_full_sample(sample_with_multiple_xml_fragments(), 1146, 0)
 }

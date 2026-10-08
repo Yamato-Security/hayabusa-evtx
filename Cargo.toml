@@ -16,7 +16,7 @@ exclude = ["**/*.evtx", "**/*.dat"]
 bitflags = "2.*"
 crc32fast = "1.*"
 chrono = { version = "0.4.*", features = ["serde"] }
-encoding = "0.*"
+encoding_rs = "0.8"
 byteorder = "1"
 quick-xml = "0.42"
 thiserror = "2"

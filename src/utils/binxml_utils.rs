@@ -1,14 +1,13 @@
+use crate::AnsiCodec;
 use crate::evtx_parser::ReadSeek;
 use thiserror::Error;
 
-use crate::err::{DeserializationError, DeserializationResult, WrappedIoError};
+use crate::err::{DeserializationError, DeserializationResult};
 
 use byteorder::{LittleEndian, ReadBytesExt};
 
-use encoding::{DecoderTrap, EncodingRef, decode};
 use log::trace;
 use std::char::decode_utf16;
-use std::error::Error as StdErr;
 use std::io::{self, Error, ErrorKind};
 
 #[derive(Debug, Error)]
@@ -67,7 +66,7 @@ pub fn read_utf16_by_size<T: ReadSeek>(stream: &mut T, size: u64) -> io::Result<
 pub fn read_ansi_encoded_string<T: ReadSeek>(
     stream: &mut T,
     size: u64,
-    ansi_codec: EncodingRef,
+    ansi_codec: AnsiCodec,
 ) -> DeserializationResult<Option<String>> {
     match size {
         0 => Ok(None),
@@ -78,20 +77,16 @@ pub fn read_ansi_encoded_string<T: ReadSeek>(
             // There may be multiple NULs in the string, prune them.
             bytes.retain(|&b| b != 0);
 
-            let s = match decode(&bytes, DecoderTrap::Strict, ansi_codec).0 {
-                Ok(s) => s,
-                Err(message) => {
-                    let as_boxed_err = Box::<dyn StdErr + Send + Sync>::from(message.to_string());
-                    let wrapped_io_err = WrappedIoError::capture_hexdump(as_boxed_err, stream);
-                    return Err(DeserializationError::FailedToReadToken {
-                        t: format!("ansi_string {}", ansi_codec.name()),
-                        token_name: "",
-                        source: wrapped_io_err,
-                    });
-                }
-            };
+            // A leading BOM stays data, and invalid sequences error instead of
+            // becoming U+FFFD.
+            let decoded = ansi_codec
+                .decode_without_bom_handling_and_without_replacement(&bytes)
+                .ok_or_else(|| DeserializationError::AnsiDecodeError {
+                    encoding_used: ansi_codec.name(),
+                    inner_message: "invalid sequence".to_owned(),
+                })?;
 
-            Ok(Some(s))
+            Ok(Some(decoded.into_owned()))
         }
     }
 }
@@ -131,4 +126,21 @@ fn read_utf16_string<T: ReadSeek>(stream: &mut T, len: Option<usize>) -> io::Res
     decode_utf16(buffer.into_iter().take_while(|&byte| byte != 0x00))
         .map(|r| r.map_err(|_e| Error::from(ErrorKind::InvalidData)))
         .collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::io::Cursor;
+
+    #[test]
+    fn read_ansi_windows_1255_decodes_0xca_as_u05ba() {
+        // Byte 0xCA was unassigned in the old `encoding` crate (strict decode
+        // errored); the Encoding Standard maps it to U+05BA.
+        let mut cursor = Cursor::new(&[0xCAu8][..]);
+        let decoded = read_ansi_encoded_string(&mut cursor, 1, encoding_rs::WINDOWS_1255)
+            .expect("windows-1255 must accept 0xCA")
+            .expect("non-empty input");
+        assert_eq!(decoded, "\u{05BA}");
+    }
 }

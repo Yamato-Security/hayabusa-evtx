@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 - Bound template substitution reservations by the available input, prevent UTF-16 name length overflow in inline and cached names, and reject truncated inline names before advancing the cursor. (#95)
+- **Breaking:** Replace the unmaintained `encoding` crate with `encoding_rs` ([RUSTSEC-2021-0153](https://rustsec.org/advisories/RUSTSEC-2021-0153)). `ParserSettings::ansi_codec` now takes `evtx::AnsiCodec` (`&'static encoding_rs::Encoding`). `evtx_dump --ansi-codec` accepts a WHATWG Encoding Standard label (case-insensitively, including aliases such as `cp1252`) and still defaults to `windows-1252`. Default windows-1252 output is byte-identical across the sample corpus. Labels follow the Encoding Standard, so `ascii` and `iso-8859-1` resolve to `windows-1252`; code pages outside that standard (`big5-2003`, `hz`, `mac-cyrillic`, `mac-roman`, `pua-mapped-binary`, and OEM pages such as `cp437`) are no longer accepted. (@YamatoSecurity)
 
 ## [0.9.12 - 2026-09-12]
 

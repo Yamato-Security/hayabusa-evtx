@@ -18,8 +18,8 @@ use crate::{
     model::{deserialized::*, raw::*},
 };
 
+use crate::AnsiCodec;
 use crate::evtx_chunk::EvtxChunk;
-use encoding::EncodingRef;
 
 use std::io::Cursor;
 use std::mem;
@@ -31,7 +31,7 @@ pub struct IterTokens<'a> {
     data_read_so_far: u32,
     eof: bool,
     is_inside_substitution: bool,
-    ansi_codec: EncodingRef,
+    ansi_codec: AnsiCodec,
 }
 
 pub struct BinXmlDeserializer<'a> {
@@ -40,7 +40,7 @@ pub struct BinXmlDeserializer<'a> {
     chunk: Option<&'a EvtxChunk<'a>>,
     // if called from substitution token with value type: Binary XML (0x21)
     is_inside_substitution: bool,
-    ansi_codec: EncodingRef,
+    ansi_codec: AnsiCodec,
 }
 
 impl<'a> BinXmlDeserializer<'a> {
@@ -49,7 +49,7 @@ impl<'a> BinXmlDeserializer<'a> {
         start_offset: u64,
         chunk: Option<&'a EvtxChunk<'a>>,
         is_inside_substitution: bool,
-        ansi_codec: EncodingRef,
+        ansi_codec: AnsiCodec,
     ) -> Self {
         BinXmlDeserializer {
             data,
@@ -66,7 +66,7 @@ impl<'a> BinXmlDeserializer<'a> {
         chunk: Option<&'a EvtxChunk<'a>>,
         data_size: Option<u32>,
         is_inside_substitution: bool,
-        ansi_codec: EncodingRef,
+        ansi_codec: AnsiCodec,
     ) -> Result<Vec<BinXMLDeserializedTokens<'a>>> {
         let offset = cursor.position();
 

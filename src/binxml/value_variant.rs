@@ -1,5 +1,5 @@
+use crate::AnsiCodec;
 use crate::err::{DeserializationError, DeserializationResult as Result, WrappedIoError};
-use encoding::EncodingRef;
 
 pub use byteorder::{LittleEndian, ReadBytesExt};
 
@@ -192,7 +192,7 @@ impl<'a> BinXmlValue<'a> {
         cursor: &mut Cursor<&'a [u8]>,
         chunk: Option<&'a EvtxChunk<'a>>,
         size: Option<u16>,
-        ansi_codec: EncodingRef,
+        ansi_codec: AnsiCodec,
     ) -> Result<BinXmlValue<'a>> {
         let value_type_token = try_read!(cursor, u8)?;
 
@@ -213,7 +213,7 @@ impl<'a> BinXmlValue<'a> {
         cursor: &mut Cursor<&'a [u8]>,
         chunk: Option<&'a EvtxChunk<'a>>,
         size: Option<u16>,
-        ansi_codec: EncodingRef,
+        ansi_codec: AnsiCodec,
     ) -> Result<BinXmlValue<'a>> {
         trace!(
             "Offset `0x{offset:08x} ({offset}): {value_type:?}, {size:?}",

@@ -16,13 +16,13 @@ use log::{error, trace, warn};
 use std::io::Seek;
 use std::io::SeekFrom;
 
+use crate::AnsiCodec;
 use crate::evtx_chunk::EvtxChunk;
-use encoding::EncodingRef;
 
 pub fn read_template<'a>(
     cursor: &mut Cursor<&'a [u8]>,
     chunk: Option<&'a EvtxChunk<'a>>,
-    ansi_codec: EncodingRef,
+    ansi_codec: AnsiCodec,
 ) -> Result<BinXmlTemplateRef<'a>> {
     trace!("TemplateInstance at {}", cursor.position());
 
@@ -143,7 +143,7 @@ pub fn read_template_definition_header(
 pub fn read_template_definition<'a>(
     cursor: &mut Cursor<&'a [u8]>,
     chunk: Option<&'a EvtxChunk<'a>>,
-    ansi_codec: EncodingRef,
+    ansi_codec: AnsiCodec,
 ) -> Result<BinXMLTemplateDefinition<'a>> {
     let header = read_template_definition_header(cursor)?;
 
@@ -313,7 +313,7 @@ pub fn read_open_start_element(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use encoding::all::WINDOWS_1252;
+    use encoding_rs::WINDOWS_1252;
 
     fn template_data(substitution_count: u32) -> Vec<u8> {
         // Flags, template ID, and an out-of-line template offset.

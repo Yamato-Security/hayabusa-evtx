@@ -5,10 +5,8 @@ use clap::{Arg, ArgAction, ArgMatches, Command};
 use dialoguer::Confirm;
 use indoc::indoc;
 
-use encoding::all::encodings;
-use encoding::types::Encoding;
 use evtx::err::Result as EvtxResult;
-use evtx::{EvtxParser, ParserSettings, SerializedEvtxRecord};
+use evtx::{AnsiCodec, EvtxParser, ParserSettings, SerializedEvtxRecord};
 use std::fs::{self, File};
 use std::io::{self, BufWriter, Write};
 use std::ops::RangeInclusive;
@@ -130,15 +128,9 @@ impl EvtxDump {
         //     }
         // };
 
-        let ansi_codec = encodings()
-            .iter()
-            .find(|c| {
-                c.name()
-                    == matches
-                        .get_one::<String>("ansi-codec")
-                        .expect("has set default")
-            })
-            .expect("possible values are derived from `encodings()`");
+        let ansi_codec = *matches
+            .get_one::<AnsiCodec>("ansi-codec")
+            .expect("has default");
 
         let output: Box<dyn Write> = if let Some(path) = matches.get_one::<String>("output-target")
         {
@@ -159,7 +151,7 @@ impl EvtxDump {
                 .separate_json_attributes(separate_json_attrib_flag)
                 .parse_empty_chunks(parse_empty_chunks_flag)
                 .indent(!no_indent)
-                .ansi_codec(*ansi_codec),
+                .ansi_codec(ansi_codec),
             input,
             show_record_number: !no_show_record_number,
             output_format,
@@ -361,13 +353,37 @@ fn test_ranges() {
     assert!(matches_ranges("-2").is_err());
 }
 
-fn main() -> Result<()> {
-    let all_encodings = encodings()
-        .iter()
-        .filter(|&e| e.raw_decoder().is_ascii_compatible())
-        .map(|e| e.name())
-        .collect::<Vec<&'static str>>();
+fn parse_ansi_codec(label: &str) -> Result<AnsiCodec, String> {
+    let codec = encoding_rs::Encoding::for_label(label.as_bytes()).ok_or_else(|| {
+        format!(
+            "unknown encoding `{label}`; expected an Encoding Standard label such as windows-1252"
+        )
+    })?;
+    if !codec.is_ascii_compatible() {
+        return Err(format!(
+            "`{label}` is not an ASCII-compatible encoding; ANSI strings cannot be UTF-16"
+        ));
+    }
+    Ok(codec)
+}
 
+#[test]
+fn test_parse_ansi_codec() {
+    assert_eq!(
+        parse_ansi_codec("windows-1252").unwrap().name(),
+        "windows-1252"
+    );
+    assert_eq!(parse_ansi_codec("cp1252").unwrap().name(), "windows-1252");
+    assert_eq!(
+        parse_ansi_codec("WINDOWS-1251").unwrap().name(),
+        "windows-1251"
+    );
+    assert!(parse_ansi_codec("utf-16le").is_err());
+    assert!(parse_ansi_codec("cp437").is_err());
+    assert!(parse_ansi_codec("no-such-encoding").is_err());
+}
+
+fn main() -> Result<()> {
     let matches = Command::new("EVTX Parser")
         .version(env!("CARGO_PKG_VERSION"))
         .author("Omer B. <omerbenamram@gmail.com>")
@@ -461,9 +477,9 @@ fn main() -> Result<()> {
         .arg(
             Arg::new("ansi-codec")
                 .long("ansi-codec")
-                .value_parser(all_encodings)
-                .default_value(encoding::all::WINDOWS_1252.name())
-                .help("When set, controls the codec of ansi encoded strings the file."),
+                .value_parser(parse_ansi_codec)
+                .default_value(encoding_rs::WINDOWS_1252.name())
+                .help("Code page for ANSI strings. An Encoding Standard label such as windows-1252 (the default), windows-1251, or gbk."),
         )
         .arg(
             Arg::new("stop-after-one-error")

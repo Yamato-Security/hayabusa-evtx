@@ -1,14 +1,13 @@
+use crate::AnsiCodec;
 use crate::evtx_parser::ReadSeek;
 use thiserror::Error;
 
-use crate::err::{DeserializationError, DeserializationResult, WrappedIoError};
+use crate::err::{DeserializationError, DeserializationResult};
 
 use byteorder::{LittleEndian, ReadBytesExt};
 
-use encoding::{DecoderTrap, EncodingRef, decode};
 use log::trace;
 use std::char::decode_utf16;
-use std::error::Error as StdErr;
 use std::io::{self, Error, ErrorKind};
 
 #[derive(Debug, Error)]
@@ -67,7 +66,7 @@ pub fn read_utf16_by_size<T: ReadSeek>(stream: &mut T, size: u64) -> io::Result<
 pub fn read_ansi_encoded_string<T: ReadSeek>(
     stream: &mut T,
     size: u64,
-    ansi_codec: EncodingRef,
+    ansi_codec: AnsiCodec,
 ) -> DeserializationResult<Option<String>> {
     match size {
         0 => Ok(None),
@@ -78,20 +77,16 @@ pub fn read_ansi_encoded_string<T: ReadSeek>(
             // There may be multiple NULs in the string, prune them.
             bytes.retain(|&b| b != 0);
 
-            let s = match decode(&bytes, DecoderTrap::Strict, ansi_codec).0 {
-                Ok(s) => s,
-                Err(message) => {
-                    let as_boxed_err = Box::<dyn StdErr + Send + Sync>::from(message.to_string());
-                    let wrapped_io_err = WrappedIoError::capture_hexdump(as_boxed_err, stream);
-                    return Err(DeserializationError::FailedToReadToken {
-                        t: format!("ansi_string {}", ansi_codec.name()),
-                        token_name: "",
-                        source: wrapped_io_err,
-                    });
-                }
-            };
+            // A leading BOM stays data, and invalid sequences error instead of
+            // becoming U+FFFD.
+            let decoded = ansi_codec
+                .decode_without_bom_handling_and_without_replacement(&bytes)
+                .ok_or_else(|| DeserializationError::AnsiDecodeError {
+                    encoding_used: ansi_codec.name(),
+                    inner_message: "invalid sequence".to_owned(),
+                })?;
 
-            Ok(Some(s))
+            Ok(Some(decoded.into_owned()))
         }
     }
 }

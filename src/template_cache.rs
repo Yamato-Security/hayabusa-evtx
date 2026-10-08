@@ -1,10 +1,10 @@
 use crate::binxml::tokens::read_template_definition;
 use crate::err::DeserializationResult;
 
+use crate::AnsiCodec;
 use crate::ChunkOffset;
 use crate::model::deserialized::BinXMLTemplateDefinition;
 
-use encoding::EncodingRef;
 use hashbrown::HashMap;
 use log::trace;
 use std::borrow::BorrowMut;
@@ -23,7 +23,7 @@ impl<'chunk> TemplateCache<'chunk> {
     pub fn populate(
         data: &'chunk [u8],
         offsets: &[ChunkOffset],
-        ansi_codec: EncodingRef,
+        ansi_codec: AnsiCodec,
     ) -> DeserializationResult<Self> {
         let mut cache = HashMap::new();
         let mut cursor = Cursor::new(data);

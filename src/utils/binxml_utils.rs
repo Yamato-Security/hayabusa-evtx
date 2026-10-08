@@ -127,3 +127,20 @@ fn read_utf16_string<T: ReadSeek>(stream: &mut T, len: Option<usize>) -> io::Res
         .map(|r| r.map_err(|_e| Error::from(ErrorKind::InvalidData)))
         .collect()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::io::Cursor;
+
+    #[test]
+    fn read_ansi_windows_1255_decodes_0xca_as_u05ba() {
+        // Byte 0xCA was unassigned in the old `encoding` crate (strict decode
+        // errored); the Encoding Standard maps it to U+05BA.
+        let mut cursor = Cursor::new(&[0xCAu8][..]);
+        let decoded = read_ansi_encoded_string(&mut cursor, 1, encoding_rs::WINDOWS_1255)
+            .expect("windows-1255 must accept 0xCA")
+            .expect("non-empty input");
+        assert_eq!(decoded, "\u{05BA}");
+    }
+}

@@ -20,19 +20,19 @@ encoding_rs = "0.8"
 byteorder = "1"
 quick-xml = "0.42"
 thiserror = "2"
-log = { version = "0.*", features = ["release_max_level_debug"] }
-winstructs = "0.*"
-hashbrown = "*"
+log = { version = "0.4", features = ["release_max_level_debug"] }
+winstructs = "0.3"
+hashbrown = "0.17"
 # Optional for multithreading.
 rayon = { version = "1", optional = true }
 
 memchr = "2.*"
 
 # `evtx_dump` dependencies
-anyhow = { version = "*", optional = true }
+anyhow = { version = "1", optional = true }
 clap = { version = "4", optional = true }
-dialoguer = { version = "*", optional = true }
-indoc = { version = "*", optional = true }
+dialoguer = { version = "0.12", optional = true }
+indoc = { version = "2", optional = true }
 
 serde_json = { version = "1", features = ["preserve_order"]}
 
@@ -57,7 +57,7 @@ pretty_assertions = "1.*"
 criterion = "0.8"
 assert_cmd = "2"
 predicates = "3"
-env_logger = "0.*"
+env_logger = "0.11"
 tempfile = "3.*"
 
 [profile.release]
@@ -67,10 +67,10 @@ lto = "fat"
 
 # rexpect relies on unix process semantics, but it's only used for process interaction tests.
 [target.'cfg(not(target_os = "windows"))'.dev-dependencies]
-rexpect = "0.*"
+rexpect = "0.7"
 
 [build-dependencies]
-skeptic = "0.*"
+skeptic = "0.14"
 
 [[bin]]
 name = "evtx_dump"

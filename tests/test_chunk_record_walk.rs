@@ -94,3 +94,39 @@ fn test_walk_stops_after_the_last_record_when_free_space_starts_later() {
 
     assert_eq!(count_records(data), (2261, 0));
 }
+
+#[test]
+fn record_start_past_a_misaligned_last_offset_is_not_allocated() {
+    let mut data = sample();
+    let chunk = &mut data[CHUNK_START..CHUNK_START + CHUNK_SIZE];
+    let offsets = record_offsets(chunk);
+    let boundary = (offsets[offsets.len() - 2] + 8) as u32;
+    chunk[44..48].copy_from_slice(&boundary.to_le_bytes());
+    fix_header_checksum(chunk);
+    assert_eq!(count_records(data), (2260, 0));
+}
+
+#[test]
+fn missing_last_offset_uses_free_space_even_when_an_id_repeats() {
+    let mut data = sample();
+    let chunk = &mut data[CHUNK_START..CHUNK_START + CHUNK_SIZE];
+    let offsets = record_offsets(chunk);
+    let last_id = read_u64(chunk, 32);
+    chunk[offsets[2] + 8..offsets[2] + 16].copy_from_slice(&last_id.to_le_bytes());
+    chunk[44..48].copy_from_slice(&0u32.to_le_bytes());
+    fix_records_checksum(chunk);
+    fix_header_checksum(chunk);
+    assert_eq!(count_records(data), (2261, 0));
+}
+
+#[test]
+fn invalid_free_space_offset_fails_checksum_validation() {
+    let data = sample();
+    let mut chunk =
+        evtx::EvtxChunkData::new(data[CHUNK_START..CHUNK_START + CHUNK_SIZE].to_vec(), true)
+            .unwrap();
+    for invalid in [0, u32::MAX] {
+        chunk.header.free_space_offset = invalid;
+        assert!(!chunk.validate_data_checksum());
+    }
+}

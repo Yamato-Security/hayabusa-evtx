@@ -100,9 +100,13 @@ impl EvtxChunkData {
         };
 
         let computed_checksum = if !checksum_disabled {
-            checksum_ieee(
-                &self.data[EVTX_CHUNK_HEADER_SIZE..self.header.free_space_offset as usize],
-            )
+            let Some(records) = self
+                .data
+                .get(EVTX_CHUNK_HEADER_SIZE..self.header.free_space_offset as usize)
+            else {
+                return false;
+            };
+            checksum_ieee(records)
         } else {
             0
         };
@@ -271,7 +275,10 @@ impl<'a> Iterator for IterChunkRecords<'a> {
                 allocation = self.recovery_type.clone();
             }
         } else if self.exhausted
-            || self.offset_from_chunk_start >= u64::from(self.chunk.header.free_space_offset)
+            || !self
+                .chunk
+                .header
+                .has_record_at(self.offset_from_chunk_start, self.chunk.data.len())
         {
             return None;
         }
@@ -343,10 +350,6 @@ impl<'a> Iterator for IterChunkRecords<'a> {
             self.offset_from_chunk_start += u64::from(record_header.data_size);
         }
 
-        if self.chunk.header.last_event_record_id == record_header.event_record_id {
-            self.exhausted = true;
-        }
-
         Some(Ok(EvtxRecord {
             allocation,
             chunk: self.chunk,
@@ -359,6 +362,14 @@ impl<'a> Iterator for IterChunkRecords<'a> {
 }
 
 impl EvtxChunkHeader {
+    /// The last record offset is inclusive, and free space begins at an exclusive bound.
+    /// A missing last offset leaves the free-space bound in effect. Record IDs can repeat.
+    fn has_record_at(&self, start: u64, chunk_len: usize) -> bool {
+        let last = u64::from(self.last_event_record_data_offset);
+        start < u64::from(self.free_space_offset).min(chunk_len as u64)
+            && (last < EVTX_CHUNK_HEADER_SIZE as u64 || start <= last)
+    }
+
     pub fn from_reader(input: &mut Cursor<&[u8]>) -> DeserializationResult<EvtxChunkHeader> {
         let mut magic = [0_u8; 8];
         input.take(8).read_exact(&mut magic)?;

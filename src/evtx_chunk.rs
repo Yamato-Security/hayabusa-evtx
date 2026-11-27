@@ -257,6 +257,26 @@ pub struct IterChunkRecords<'a> {
     recovery_type: RecordAllocation,
 }
 
+impl IterChunkRecords<'_> {
+    /// Whether the record that starts at `record_start` is the last allocated record.
+    ///
+    /// The header's last record offset decides, as in libevtx. A record ID is not a reliable
+    /// end marker: real chunks can hold an earlier record with the same ID as the last one,
+    /// and stopping there would silently drop every record after it. The ID is only used when
+    /// the header's last record offset is outside the allocated area.
+    fn is_last_record(&self, record_start: u64, record_id: u64) -> bool {
+        let header = &self.chunk.header;
+        let last_record_offset = u64::from(header.last_event_record_data_offset);
+        if (EVTX_CHUNK_HEADER_SIZE as u64..u64::from(header.free_space_offset))
+            .contains(&last_record_offset)
+        {
+            record_start >= last_record_offset
+        } else {
+            header.last_event_record_id == record_id
+        }
+    }
+}
+
 impl<'a> Iterator for IterChunkRecords<'a> {
     type Item = std::result::Result<EvtxRecord<'a>, EvtxError>;
 
@@ -276,6 +296,7 @@ impl<'a> Iterator for IterChunkRecords<'a> {
             return None;
         }
 
+        let record_start = self.offset_from_chunk_start;
         let mut cursor = Cursor::new(&self.chunk.data[self.offset_from_chunk_start as usize..]);
 
         let record_header = match EvtxRecordHeader::from_reader(&mut cursor) {
@@ -341,10 +362,10 @@ impl<'a> Iterator for IterChunkRecords<'a> {
         if self.offset_array.is_none() {
             // Update the offset_from_chunk_start if we are not using an offset_array
             self.offset_from_chunk_start += u64::from(record_header.data_size);
-        }
 
-        if self.chunk.header.last_event_record_id == record_header.event_record_id {
-            self.exhausted = true;
+            if self.is_last_record(record_start, record_header.event_record_id) {
+                self.exhausted = true;
+            }
         }
 
         Some(Ok(EvtxRecord {
